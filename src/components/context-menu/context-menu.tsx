@@ -5,6 +5,7 @@ import * as React from "react";
 import { Popover, List, ListItem, ListItemIcon, ListItemText, Divider } from "@material-ui/core";
 import { DefaultTransformOrigin } from "../popover/helpers";
 import IconBase, { IconTypes } from "../icon/icon";
+import { ContextMenuItemSet } from "./context-menu-item-set";
 
 export interface ContextMenuItem {
     name: string;
@@ -15,14 +16,15 @@ export type ContextMenuItemGroup = ContextMenuItem[];
 
 export interface ContextMenuProps {
     anchorEl?: HTMLElement;
-    items: ContextMenuItemGroup[];
+    itemSet: ContextMenuItemSet;
     onItemClick: (action: ContextMenuItem) => void;
     onClose: () => void;
 }
 
 export default class ContextMenu extends React.PureComponent<ContextMenuProps> {
     render() {
-        const { anchorEl, items, onClose, onItemClick } = this.props;
+        const { anchorEl, itemSet, onClose, onItemClick } = this.props;
+        const items = itemSet.getItems();
         return <Popover
             anchorEl={anchorEl}
             open={!!anchorEl}

@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: AGPL-3.0
 
 import { Dispatch } from "redux";
-import { ContextMenuItemGroup, ContextMenuItem } from "../../components/context-menu/context-menu";
+import { ContextMenuItemGroup, ContextMenuItem } from "./context-menu";
 import { ContextMenuResource } from "../../store/context-menu/context-menu-reducer";
 
 export interface ContextMenuItemSet {

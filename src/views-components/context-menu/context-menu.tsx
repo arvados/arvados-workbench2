@@ -8,15 +8,15 @@ import actions from "../../store/context-menu/context-menu-actions";
 import ContextMenu, { ContextMenuProps, ContextMenuItem } from "../../components/context-menu/context-menu";
 import { createAnchorAt } from "../../components/popover/helpers";
 import { ContextMenuResource } from "../../store/context-menu/context-menu-reducer";
-import { ContextMenuItemSet } from "./context-menu-item-set";
+import { ContextMenuItemSet } from "../../components/context-menu/context-menu-item-set";
 import { emptyItemSet } from "./item-sets/empty-item-set";
 
-type DataProps = Pick<ContextMenuProps, "anchorEl" | "items"> & { resource?: ContextMenuResource };
+type DataProps = Pick<ContextMenuProps, "anchorEl" | "itemSet"> & { resource?: ContextMenuResource };
 const mapStateToProps = (state: RootState): DataProps => {
     const { position, resource } = state.contextMenu;
     return {
         anchorEl: resource ? createAnchorAt(position) : undefined,
-        items: getMenuItemSet(resource).getItems(),
+        itemSet: getMenuItemSet(resource),
         resource
     };
 };
