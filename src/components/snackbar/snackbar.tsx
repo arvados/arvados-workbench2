@@ -4,7 +4,7 @@
 
 import * as React from 'react';
 import Button from '@material-ui/core/Button';
-import Snackbar from '@material-ui/core/Snackbar';
+import SnackbarMaterial from '@material-ui/core/Snackbar';
 
 type SnackbarProps = {
     message: string
@@ -14,7 +14,7 @@ interface SnackbarState {
     open: boolean;
 }
 
-export default class SnackbarComponent extends React.Component<SnackbarProps> {
+export class Snackbar extends React.Component<SnackbarProps> {
     state: SnackbarState = {
         open: false
     };
@@ -31,7 +31,7 @@ export default class SnackbarComponent extends React.Component<SnackbarProps> {
                 <Button onClick={this.handleClick}>
                     CLICK
                 </Button>
-                <Snackbar
+                <SnackbarMaterial
                     open={open}
                     autoHideDuration={AUTO_HIDE_DURATION}
                     message={<span id="message-id">{message}</span>}
