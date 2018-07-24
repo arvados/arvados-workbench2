@@ -7,12 +7,13 @@ import { routerMiddleware, routerReducer, RouterState } from "react-router-redux
 import thunkMiddleware from 'redux-thunk';
 import { History } from "history";
 
-import projectsReducer, { ProjectState } from "./project/project-reducer";
-import sidePanelReducer, { SidePanelState } from './side-panel/side-panel-reducer';
-import authReducer, { AuthState } from "./auth/auth-reducer";
-import dataExplorerReducer, { DataExplorerState } from './data-explorer/data-explorer-reducer';
-import { projectPanelMiddleware } from '../store/project-panel/project-panel-middleware';
-import detailsPanelReducer, { DetailsPanelState } from './details-panel/details-panel-reducer';
+import { projectsReducer, ProjectState } from "./project/project-reducer";
+import { sidePanelReducer, SidePanelState } from './side-panel/side-panel-reducer';
+import { authReducer, AuthState } from "./auth/auth-reducer";
+import { dataExplorerReducer, DataExplorerState } from './data-explorer/data-explorer-reducer';
+import { projectPanelMiddleware } from './project-panel/project-panel-middleware';
+import { detailsPanelReducer, DetailsPanelState } from './details-panel/details-panel-reducer';
+import { contextMenuReducer, ContextMenuState } from './context-menu/context-menu-reducer';
 
 const composeEnhancers =
     (process.env.NODE_ENV === 'development' &&
@@ -26,6 +27,7 @@ export interface RootState {
     dataExplorer: DataExplorerState;
     sidePanel: SidePanelState;
     detailsPanel: DetailsPanelState;
+    contextMenu: ContextMenuState;
 }
 
 const rootReducer = combineReducers({
@@ -34,11 +36,12 @@ const rootReducer = combineReducers({
     router: routerReducer,
     dataExplorer: dataExplorerReducer,
     sidePanel: sidePanelReducer,
-    detailsPanel: detailsPanelReducer
+    detailsPanel: detailsPanelReducer,
+    contextMenu: contextMenuReducer
 });
 
 
-export default function configureStore(history: History) {
+export function configureStore(history: History) {
     const middlewares: Middleware[] = [
         routerMiddleware(history),
         thunkMiddleware,
