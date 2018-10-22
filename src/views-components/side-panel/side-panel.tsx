@@ -5,8 +5,8 @@
 import * as React from 'react';
 import { StyleRulesCallback, WithStyles, withStyles } from '@material-ui/core/styles';
 import { ArvadosTheme } from '~/common/custom-theme';
-import { SidePanelTree, SidePanelTreeProps } from '~/views-components/side-panel-tree/side-panel-tree';
-import { compose, Dispatch } from 'redux';
+import { SidePanelTrees, SidePanelTreeProps } from '~/views-components/side-panel-tree/side-panel-tree';
+import { Dispatch } from 'redux';
 import { connect } from 'react-redux';
 import { navigateFromSidePanel } from '../../store/side-panel/side-panel-action';
 import { Grid } from '@material-ui/core';
@@ -38,9 +38,9 @@ const mapStateToProps = (state: RootState) => ({
 
 export const SidePanel = withStyles(styles)(
     connect(mapStateToProps, mapDispatchToProps)(
-    ({ classes, ...props }: WithStyles<CssRules> & SidePanelTreeProps) =>
-    <Grid item xs>
-        <SidePanelButton />
-        <SidePanelTree {...props} />
-    </Grid>
-));
+        ({ classes, ...props }: WithStyles<CssRules> & SidePanelTreeProps) =>
+            <Grid item xs>
+                <SidePanelButton />
+                <SidePanelTrees />
+            </Grid>
+    ));

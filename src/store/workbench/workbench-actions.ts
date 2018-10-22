@@ -53,6 +53,7 @@ import { collectionPanelActions } from "~/store/collection-panel/collection-pane
 import { CollectionResource } from "~/models/collection";
 import { searchResultsPanelActions, loadSearchResultsPanel } from '~/store/search-results-panel/search-results-panel-actions';
 import { searchResultsPanelColumns } from '~/views/search-results-panel/search-results-panel-view';
+import { initSidePanelTrees } from '../side-panel-tree/side-panel-trees-actions';
 
 export const WORKBENCH_LOADING_SCREEN = 'workbenchLoadingScreen';
 
@@ -88,6 +89,7 @@ export const loadWorkbench = () =>
                 dispatch(workflowPanelActions.SET_COLUMNS({ columns: workflowPanelColumns }));
                 dispatch(searchResultsPanelActions.SET_COLUMNS({ columns: searchResultsPanelColumns }));
                 dispatch<any>(initSidePanelTree());
+                dispatch<any>(initSidePanelTrees);
                 if (router.location) {
                     const match = matchRootRoute(router.location.pathname);
                     if (match) {

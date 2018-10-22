@@ -14,6 +14,13 @@ import { RecentIcon, WorkflowIcon } from '~/components/icon/icon';
 import { activateSidePanelTreeItem, toggleSidePanelTreeItemCollapse, SIDE_PANEL_TREE, SidePanelTreeCategory } from '~/store/side-panel-tree/side-panel-tree-actions';
 import { openSidePanelContextMenu } from '~/store/context-menu/context-menu-actions';
 import { noop } from 'lodash';
+
+import { HomeTreePicker } from "../projects-tree-picker/home-tree-picker";
+import { SharedTreePicker } from "../projects-tree-picker/shared-tree-picker";
+import { SidePanelTreeId } from "~/store/side-panel-tree/side-panel-trees-actions";
+import { ProjectsTreePicker } from '~/views-components/projects-tree-picker/generic-projects-tree-picker';
+import { IconType } from '../../components/icon/icon';
+
 export interface SidePanelTreeProps {
     onItemActivation: (id: string) => void;
     sidePanelProgress?: boolean;
@@ -69,3 +76,26 @@ const getSidePanelIcon = (category: string) => {
             return ProjectIcon;
     }
 };
+
+export const SidePanelTrees = () =>
+    <div>
+        <HomeTreePicker pickerId={SidePanelTreeId.HOME} />
+        <SharedTreePicker pickerId={SidePanelTreeId.SHARED} />
+        <WorkflowsTreePicker pickerId={SidePanelTreeId.WORKFLOWS} />
+        <RecentTreePicker pickerId={SidePanelTreeId.RECENT} />
+        <FavoritesTreePicker pickerId={SidePanelTreeId.FAVORITES} />
+        <TrashTreePicker pickerId={SidePanelTreeId.TRASH} />
+    </div>;
+
+const createPicker = (icon: IconType) =>
+    connect(() => ({
+        rootItemIcon: icon,
+    }), { loadRootItem: noop, })(ProjectsTreePicker);
+
+export const WorkflowsTreePicker = createPicker(WorkflowIcon);
+
+export const RecentTreePicker = createPicker(RecentIcon);
+
+export const FavoritesTreePicker = createPicker(FavoriteIcon);
+
+export const TrashTreePicker = createPicker(TrashIcon);
