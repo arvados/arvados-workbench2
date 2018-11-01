@@ -5,6 +5,7 @@
 import { Dispatch } from 'redux';
 import { initSharedProject, initUserProject, receiveTreePickerData } from '../tree-picker/tree-picker-actions';
 import { TreeNodeStatus } from '~/models/tree';
+import { values, includes, __ } from 'lodash/fp';
 
 export enum SidePanelTreeId {
     HOME = 'sidePanelUserTree',
@@ -14,6 +15,8 @@ export enum SidePanelTreeId {
     FAVORITES = 'sidePanelFavoritesTree',
     TRASH = 'sidePanelTrashTree',
 }
+
+export const isSidePanelTreeId = includes(__, values(SidePanelTreeId));
 
 export const initSidePanelTrees = (dispatch: Dispatch<any>) => {
     dispatch(initUserProject(SidePanelTreeId.HOME));
@@ -28,7 +31,7 @@ const initSidePanelTree = (pickerId: string, name: string) =>
     receiveTreePickerData({
         id: '',
         pickerId,
-        data: [{ uuid: name, name }],
+        data: [{ uuid: pickerId, name }],
         extractNodeData: value => ({
             id: value.uuid,
             status: TreeNodeStatus.LOADED,

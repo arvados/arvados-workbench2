@@ -29,6 +29,7 @@ export interface ProjectsTreePickerDataProps {
     includeFiles?: boolean;
     rootItemIcon: IconType;
     showSelection?: boolean;
+    openOnActivation?: boolean;
     relatedTreePickers?: string[];
     loadRootItem: (item: TreeItem<ProjectsTreePickerRootItem>, pickerId: string, includeCollections?: boolean, inlcudeFiles?: boolean) => void;
 }
@@ -40,39 +41,66 @@ const mapStateToProps = (_: any, { rootItemIcon, showSelection }: ProjectsTreePi
     showSelection: isSelectionVisible(showSelection),
 });
 
-const mapDispatchToProps = (dispatch: Dispatch, { loadRootItem, includeCollections, includeFiles, relatedTreePickers, ...props }: ProjectsTreePickerProps): PickedTreePickerProps => ({
-    onContextMenu: () => { return; },
-    toggleItemActive: (event, item, pickerId) => {
-        dispatch(treePickerActions.ACTIVATE_TREE_PICKER_NODE({ id: item.id, pickerId, relatedTreePickers }));
-        if (props.toggleItemActive) {
-            props.toggleItemActive(event, item, pickerId);
-        }
-    },
-    toggleItemOpen: (_, item, pickerId) => {
-        const { id, data, status } = item;
-        if (status === TreeItemStatus.INITIAL) {
-            if ('kind' in data) {
-                dispatch<any>(
-                    data.kind === ResourceKind.COLLECTION
-                        ? loadCollection(id, pickerId)
-                        : loadProject({ id, pickerId, includeCollections, includeFiles })
-                );
-            } else if (!('type' in data) && loadRootItem) {
-                loadRootItem(item as TreeItem<ProjectsTreePickerRootItem>, pickerId, includeCollections, includeFiles);
+const mapDispatchToProps = (dispatch: Dispatch, {
+    loadRootItem,
+    includeCollections,
+    includeFiles,
+    relatedTreePickers,
+    ...props }: ProjectsTreePickerProps): PickedTreePickerProps => ({
+        onContextMenu: () => { return; },
+        toggleItemActive: (event, item, pickerId) => {
+            dispatch(treePickerActions.ACTIVATE_TREE_PICKER_NODE({ id: item.id, pickerId, relatedTreePickers }));
+            if (props.toggleItemActive) {
+                props.toggleItemActive(event, item, pickerId);
             }
-        } else if (status === TreeItemStatus.LOADED) {
-            dispatch(treePickerActions.TOGGLE_TREE_PICKER_NODE_COLLAPSE({ id, pickerId }));
+        },
+        toggleItemOpen: (_, item, pickerId) => {
+            const { id, data, status } = item;
+            if (status === TreeItemStatus.INITIAL) {
+                if ('kind' in data) {
+                    dispatch<any>(
+                        data.kind === ResourceKind.COLLECTION
+                            ? loadCollection(id, pickerId)
+                            : loadProject({ id, pickerId, includeCollections, includeFiles })
+                    );
+                } else if (!('type' in data) && loadRootItem) {
+                    loadRootItem(item as TreeItem<ProjectsTreePickerRootItem>, pickerId, includeCollections, includeFiles);
+                }
+            } else if (status === TreeItemStatus.LOADED) {
+                dispatch(treePickerActions.TOGGLE_TREE_PICKER_NODE_COLLAPSE({ id, pickerId }));
+            }
+        },
+        toggleItemSelection: (event, item, pickerId) => {
+            dispatch<any>(treePickerActions.TOGGLE_TREE_PICKER_NODE_SELECTION({ id: item.id, pickerId }));
+            if (props.toggleItemSelection) {
+                props.toggleItemSelection(event, item, pickerId);
+            }
+        },
+    });
+
+const mergeProps = (
+    stateProps: ReturnType<typeof mapStateToProps>,
+    dispatchProps: ReturnType<typeof mapDispatchToProps>,
+    ownProps: ProjectsTreePickerProps) => ({
+        ...stateProps,
+        ...dispatchProps,
+        ...ownProps,
+        ...mergeToggleItemActive(dispatchProps, ownProps),
+    });
+
+const mergeToggleItemActive = (
+    dispatchProps: ReturnType<typeof mapDispatchToProps>,
+    ownProps: ProjectsTreePickerProps
+): Partial<PickedTreePickerProps> => ({
+    toggleItemActive: (event, item, pickerId) => {
+        if (ownProps.openOnActivation) {
+            dispatchProps.toggleItemOpen(event, item, pickerId);
         }
-    },
-    toggleItemSelection: (event, item, pickerId) => {
-        dispatch<any>(treePickerActions.TOGGLE_TREE_PICKER_NODE_SELECTION({ id: item.id, pickerId }));
-        if (props.toggleItemSelection) {
-            props.toggleItemSelection(event, item, pickerId);
-        }
-    },
+        dispatchProps.toggleItemActive(event, item, pickerId);
+    }
 });
 
-export const ProjectsTreePicker = connect(mapStateToProps, mapDispatchToProps)(TreePicker);
+export const ProjectsTreePicker = connect(mapStateToProps, mapDispatchToProps, mergeProps)(TreePicker);
 
 const getProjectPickerIcon = ({ data }: TreeItem<ProjectsTreePickerItem>, rootIcon: IconType): IconType => {
     if ('kind' in data) {

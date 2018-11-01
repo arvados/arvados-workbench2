@@ -3,13 +3,13 @@
 // SPDX-License-Identifier: AGPL-3.0
 
 import { Dispatch } from 'redux';
-import { isSidePanelTreeCategory, SidePanelTreeCategory } from '~/store/side-panel-tree/side-panel-tree-actions';
 import { navigateToFavorites, navigateTo, navigateToTrash, navigateToSharedWithMe, navigateToWorkflows } from '../navigation/navigation-action';
 import { snackbarActions } from '~/store/snackbar/snackbar-actions';
+import { SidePanelTreeId, isSidePanelTreeId } from '~/store/side-panel-tree/side-panel-trees-actions';
 
 export const navigateFromSidePanel = (id: string) =>
     (dispatch: Dispatch) => {
-        if (isSidePanelTreeCategory(id)) {
+        if (isSidePanelTreeId(id)) {
             dispatch<any>(getSidePanelTreeCategoryAction(id));
         } else {
             dispatch<any>(navigateTo(id));
@@ -18,13 +18,13 @@ export const navigateFromSidePanel = (id: string) =>
 
 const getSidePanelTreeCategoryAction = (id: string) => {
     switch (id) {
-        case SidePanelTreeCategory.FAVORITES:
+        case SidePanelTreeId.FAVORITES:
             return navigateToFavorites;
-        case SidePanelTreeCategory.TRASH:
+        case SidePanelTreeId.TRASH:
             return navigateToTrash;
-        case SidePanelTreeCategory.SHARED_WITH_ME:
+        case SidePanelTreeId.SHARED:
             return navigateToSharedWithMe;
-        case SidePanelTreeCategory.WORKFLOWS:
+        case SidePanelTreeId.WORKFLOWS:
             return navigateToWorkflows;
         default:
             return sidePanelTreeCategoryNotAvailable(id);
