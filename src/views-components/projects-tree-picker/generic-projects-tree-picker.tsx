@@ -93,7 +93,7 @@ const mergeToggleItemActive = (
     ownProps: ProjectsTreePickerProps
 ): Partial<PickedTreePickerProps> => ({
     toggleItemActive: (event, item, pickerId) => {
-        if (ownProps.openOnActivation) {
+        if (ownProps.openOnActivation && !item.active) {
             dispatchProps.toggleItemOpen(event, item, pickerId);
         }
         dispatchProps.toggleItemActive(event, item, pickerId);
