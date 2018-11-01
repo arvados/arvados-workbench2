@@ -9,40 +9,44 @@ import {
     goToView,
     searchData,
     deleteSavedQuery,
-    saveRecentQuery,
     loadRecentQueries,
-    saveQuery,
     openSearchView,
     closeSearchView,
+    closeAdvanceView,
     navigateToItem,
-    editSavedQuery
+    editSavedQuery,
+    changeData,
+    submitData, moveUp, moveDown
 } from '~/store/search-bar/search-bar-actions';
-import { SearchBarView } from '~/views-components/search-bar/search-bar-view';
+import { SearchBarView, SearchBarActionProps, SearchBarDataProps } from '~/views-components/search-bar/search-bar-view';
 import { SearchBarAdvanceFormData } from '~/models/search-bar';
-import { searchDataOnEnter } from '../../store/search-bar/search-bar-actions';
 
-const mapStateToProps = ({ searchBar }: RootState) => {
+const mapStateToProps = ({ searchBar, form }: RootState): SearchBarDataProps => {
     return {
         searchValue: searchBar.searchValue,
         currentView: searchBar.currentView,
         isPopoverOpen: searchBar.open,
         searchResults: searchBar.searchResults,
-        savedQueries: searchBar.savedQueries
+        selectedItem: searchBar.selectedItem,
+        savedQueries: searchBar.savedQueries,
+        tags: form.searchBarAdvanceFormName
     };
 };
 
-const mapDispatchToProps = (dispatch: Dispatch) => ({
+const mapDispatchToProps = (dispatch: Dispatch): SearchBarActionProps => ({
     onSearch: (valueSearch: string) => dispatch<any>(searchData(valueSearch)),
+    onChange: (event: React.ChangeEvent<HTMLInputElement>) => dispatch<any>(changeData(event.target.value)),
     onSetView: (currentView: string) => dispatch(goToView(currentView)),
+    onSubmit: (event: React.FormEvent<HTMLFormElement>) => dispatch<any>(submitData(event)),
     closeView: () => dispatch<any>(closeSearchView()),
-    saveRecentQuery: (query: string) => dispatch<any>(saveRecentQuery(query)),
+    closeAdvanceView: () => dispatch<any>(closeAdvanceView()),
     loadRecentQueries: () => dispatch<any>(loadRecentQueries()),
-    saveQuery: (data: SearchBarAdvanceFormData) => dispatch<any>(saveQuery(data)),
     deleteSavedQuery: (id: number) => dispatch<any>(deleteSavedQuery(id)),
     openSearchView: () => dispatch<any>(openSearchView()),
     navigateTo: (uuid: string) => dispatch<any>(navigateToItem(uuid)),
     editSavedQuery: (data: SearchBarAdvanceFormData) => dispatch<any>(editSavedQuery(data)),
-    searchDataOnEnter: (searchValue: string) => dispatch<any>(searchDataOnEnter(searchValue))
+    moveUp: () => dispatch<any>(moveUp()),
+    moveDown: () => dispatch<any>(moveDown())
 });
 
 export const SearchBar = connect(mapStateToProps, mapDispatchToProps)(SearchBarView);

@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: AGPL-3.0
 
 import { ContextMenuActionSet } from "../context-menu-action-set";
-import { NewProjectIcon, RenameIcon, CopyIcon, MoveToIcon, DetailsIcon } from '~/components/icon/icon';
+import { NewProjectIcon, RenameIcon, CopyIcon, MoveToIcon, DetailsIcon, AdvancedIcon } from '~/components/icon/icon';
 import { ToggleFavoriteAction } from "../actions/favorite-action";
 import { toggleFavorite } from "~/store/favorites/favorites-actions";
 import { favoritePanelActions } from "~/store/favorite-panel/favorite-panel-action";
@@ -13,6 +13,9 @@ import { openProjectUpdateDialog } from '~/store/projects/project-update-actions
 import { ToggleTrashAction } from "~/views-components/context-menu/actions/trash-action";
 import { toggleProjectTrashed } from "~/store/trash/trash-actions";
 import { detailsPanelActions } from '~/store/details-panel/details-panel-action';
+import { ShareIcon } from '~/components/icon/icon';
+import { openSharingDialog } from "~/store/sharing-dialog/sharing-dialog-actions";
+import { openAdvancedTabDialog } from "~/store/advanced-tab/advanced-tab";
 
 export const projectActionSet: ContextMenuActionSet = [[
     {
@@ -27,6 +30,13 @@ export const projectActionSet: ContextMenuActionSet = [[
         name: "Edit project",
         execute: (dispatch, resource) => {
             dispatch<any>(openProjectUpdateDialog(resource));
+        }
+    },
+    {
+        icon: ShareIcon,
+        name: "Share",
+        execute: (dispatch, { uuid }) => {
+            dispatch<any>(openSharingDialog(uuid));
         }
     },
     {
@@ -46,7 +56,9 @@ export const projectActionSet: ContextMenuActionSet = [[
     {
         icon: MoveToIcon,
         name: "Move to",
-        execute: (dispatch, resource) => dispatch<any>(openMoveProjectDialog(resource))
+        execute: (dispatch, resource) => {
+            dispatch<any>(openMoveProjectDialog(resource));
+        }
     },
     {
         icon: CopyIcon,
@@ -58,6 +70,15 @@ export const projectActionSet: ContextMenuActionSet = [[
     {
         icon: DetailsIcon,
         name: "View details",
-        execute: dispatch => dispatch(detailsPanelActions.TOGGLE_DETAILS_PANEL())
-    }
+        execute: dispatch => {
+            dispatch(detailsPanelActions.TOGGLE_DETAILS_PANEL());
+        }
+    },
+    {
+        icon: AdvancedIcon,
+        name: "Advanced",
+        execute: (dispatch, resource) => {
+            dispatch<any>(openAdvancedTabDialog(resource.uuid));
+        }
+    },
 ]];

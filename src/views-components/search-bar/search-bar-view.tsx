@@ -11,17 +11,27 @@ import {
     WithStyles,
     Tooltip,
     InputAdornment, Input,
-    ListItem, ListItemText, ListItemSecondaryAction,
     ClickAwayListener
 } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
-import { RemoveIcon, EditSavedQueryIcon } from '~/components/icon/icon';
-import { SearchView } from '~/store/search-bar/search-bar-reducer';
-import { SearchBarBasicView } from '~/views-components/search-bar/search-bar-basic-view';
-import { SearchBarAdvancedView } from '~/views-components/search-bar/search-bar-advanced-view';
-import { SearchBarAutocompleteView, SearchBarAutocompleteViewDataProps } from '~/views-components/search-bar/search-bar-autocomplete-view';
 import { ArvadosTheme } from '~/common/custom-theme';
-import { SearchBarAdvanceFormData } from '~/models/search-bar';
+import { SearchView } from '~/store/search-bar/search-bar-reducer';
+import {
+    SearchBarBasicView,
+    SearchBarBasicViewDataProps,
+    SearchBarBasicViewActionProps
+} from '~/views-components/search-bar/search-bar-basic-view';
+import {
+    SearchBarAutocompleteView,
+    SearchBarAutocompleteViewDataProps,
+    SearchBarAutocompleteViewActionProps
+} from '~/views-components/search-bar/search-bar-autocomplete-view';
+import {
+    SearchBarAdvancedView,
+    SearchBarAdvancedViewDataProps,
+    SearchBarAdvancedViewActionProps
+} from '~/views-components/search-bar/search-bar-advanced-view';
+import { KEY_CODE_DOWN, KEY_CODE_ESC, KEY_CODE_UP, KEY_ENTER } from "~/common/codes";
 
 type CssRules = 'container' | 'containerSearchViewOpened' | 'input' | 'view';
 
@@ -49,111 +59,83 @@ const styles: StyleRulesCallback<CssRules> = (theme: ArvadosTheme) => {
     };
 };
 
-type SearchBarDataProps = {
+export type SearchBarDataProps = SearchBarViewDataProps
+    & SearchBarAutocompleteViewDataProps
+    & SearchBarAdvancedViewDataProps
+    & SearchBarBasicViewDataProps;
+
+interface SearchBarViewDataProps {
     searchValue: string;
     currentView: string;
     isPopoverOpen: boolean;
-    savedQueries: SearchBarAdvanceFormData[];
-} & SearchBarAutocompleteViewDataProps;
-
-interface SearchBarActionProps {
-    onSearch: (value: string) => any;
-    searchDataOnEnter: (value: string) => void;
     debounce?: number;
+}
+
+export type SearchBarActionProps = SearchBarViewActionProps
+    & SearchBarAutocompleteViewActionProps
+    & SearchBarAdvancedViewActionProps
+    & SearchBarBasicViewActionProps;
+
+interface SearchBarViewActionProps {
+    onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
     onSetView: (currentView: string) => void;
     closeView: () => void;
-    saveRecentQuery: (query: string) => void;
-    loadRecentQueries: () => string[];
-    saveQuery: (data: SearchBarAdvanceFormData) => void;
-    deleteSavedQuery: (id: number) => void;
     openSearchView: () => void;
-    navigateTo: (uuid: string) => void;
-    editSavedQuery: (data: SearchBarAdvanceFormData, id: number) => void;
+    loadRecentQueries: () => string[];
+    moveUp: () => void;
+    moveDown: () => void;
 }
 
-type SearchBarProps = SearchBarDataProps & SearchBarActionProps & WithStyles<CssRules>;
+type SearchBarViewProps = SearchBarDataProps & SearchBarActionProps & WithStyles<CssRules>;
 
-interface SearchBarState {
-    value: string;
-}
-
-interface RenderRecentQueriesProps {
-    text: string;
-    onSearch: (searchValue: string) => void;
-}
-
-export const RenderRecentQueries = (props: RenderRecentQueriesProps) => {
-    return <ListItem button>
-        <ListItemText secondary={props.text} onClick={() => props.onSearch(props.text)} />
-    </ListItem>;
+const handleKeyDown = (e: React.KeyboardEvent, props: SearchBarViewProps) => {
+    if (e.keyCode === KEY_CODE_DOWN) {
+        e.preventDefault();
+        if (!props.isPopoverOpen) {
+            props.openSearchView();
+        } else {
+            props.moveDown();
+        }
+    } else if (e.keyCode === KEY_CODE_UP) {
+        e.preventDefault();
+        props.moveUp();
+    } else if (e.keyCode === KEY_CODE_ESC) {
+        e.preventDefault();
+        props.closeView();
+    } else if (e.keyCode === KEY_ENTER) {
+        if (props.currentView === SearchView.BASIC) {
+            e.preventDefault();
+            props.onSearch(props.selectedItem.query);
+        } else if (props.currentView === SearchView.AUTOCOMPLETE) {
+            if (props.selectedItem.id !== props.searchValue) {
+                e.preventDefault();
+                props.navigateTo(props.selectedItem.id);
+            }
+        }
+    }
 };
-
-interface RenderAutocompleteItemsProps {
-    text: string | JSX.Element;
-    navigateTo: (uuid: string) => void;
-    uuid: string;
-}
-
-export const RenderAutocompleteItems = (props: RenderAutocompleteItemsProps) => {
-    return <ListItem button>
-        <ListItemText secondary={props.text} onClick={() => props.navigateTo(props.uuid)} />
-    </ListItem>;
-};
-
-interface RenderSavedQueriesProps {
-    text: string;
-    id: number;
-    deleteSavedQuery: (id: number) => void;
-    onSearch: (searchValue: string) => void;
-    editSavedQuery: (data: SearchBarAdvanceFormData, id: number) => void;
-    data: SearchBarAdvanceFormData;
-}
-
-export const RenderSavedQueries = (props: RenderSavedQueriesProps) => {
-    return <ListItem button>
-        <ListItemText secondary={props.text} onClick={() => props.onSearch(props.text)} />
-        <ListItemSecondaryAction>
-            <Tooltip title="Edit">
-                <IconButton aria-label="Edit" onClick={() => props.editSavedQuery(props.data, props.id)}>
-                    <EditSavedQueryIcon />
-                </IconButton>
-            </Tooltip>
-            <Tooltip title="Remove">
-                <IconButton aria-label="Remove" onClick={() => props.deleteSavedQuery(props.id)}>
-                    <RemoveIcon />
-                </IconButton>
-            </Tooltip>
-        </ListItemSecondaryAction>
-    </ListItem>;
-};
-
-export const DEFAULT_SEARCH_DEBOUNCE = 1000;
 
 export const SearchBarView = withStyles(styles)(
-    class extends React.Component<SearchBarProps> {
-        state: SearchBarState = {
-            value: ""
-        };
-
-        timeout: number;
-
-        render() {
-            const { classes, currentView, openSearchView, closeView, isPopoverOpen } = this.props;
-            return <ClickAwayListener onClickAway={closeView}>
+    (props : SearchBarViewProps) => {
+        const { classes, isPopoverOpen } = props;
+        return (
+            <ClickAwayListener onClickAway={props.closeView}>
                 <Paper className={isPopoverOpen ? classes.containerSearchViewOpened : classes.container} >
-                    <form onSubmit={this.handleSubmit}>
+                    <form onSubmit={props.onSubmit}>
                         <Input
                             className={classes.input}
-                            onChange={this.handleChange}
+                            onChange={props.onChange}
                             placeholder="Search"
-                            value={this.state.value}
+                            value={props.searchValue}
                             fullWidth={true}
                             disableUnderline={true}
-                            onClick={openSearchView}
+                            onClick={props.openSearchView}
+                            onKeyDown={e => handleKeyDown(e, props)}
                             endAdornment={
                                 <InputAdornment position="end">
                                     <Tooltip title='Search'>
-                                        <IconButton>
+                                        <IconButton type="submit">
                                             <SearchIcon />
                                         </IconButton>
                                     </Tooltip>
@@ -161,63 +143,34 @@ export const SearchBarView = withStyles(styles)(
                             } />
                     </form>
                     <div className={classes.view}>
-                        {isPopoverOpen && this.getView(currentView)}
+                        {isPopoverOpen && getView({...props})}
                     </div>
                 </Paper >
-            </ClickAwayListener>;
-        }
-
-        componentDidMount() {
-            this.setState({ value: this.props.searchValue });
-        }
-
-        componentWillReceiveProps(nextProps: SearchBarProps) {
-            if (nextProps.searchValue !== this.props.searchValue) {
-                this.setState({ value: nextProps.searchValue });
-            }
-        }
-
-        componentWillUnmount() {
-            clearTimeout(this.timeout);
-        }
-
-        getView = (currentView: string) => {
-            const { onSetView, loadRecentQueries, savedQueries, deleteSavedQuery, searchValue, searchResults, saveQuery, onSearch, navigateTo, editSavedQuery } = this.props;
-            switch (currentView) {
-                case SearchView.BASIC:
-                    return <SearchBarBasicView setView={onSetView} recentQueries={loadRecentQueries} savedQueries={savedQueries} deleteSavedQuery={deleteSavedQuery} onSearch={onSearch} editSavedQuery={editSavedQuery} />;
-                case SearchView.ADVANCED:
-                    return <SearchBarAdvancedView setView={onSetView} saveQuery={saveQuery} />;
-                case SearchView.AUTOCOMPLETE:
-                    return <SearchBarAutocompleteView
-                        navigateTo={navigateTo}
-                        searchResults={searchResults}
-                        searchValue={searchValue} />;
-                default:
-                    return <SearchBarBasicView setView={onSetView} recentQueries={loadRecentQueries} savedQueries={savedQueries} deleteSavedQuery={deleteSavedQuery} onSearch={onSearch} editSavedQuery={editSavedQuery} />;
-            }
-        }
-
-        handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-            event.preventDefault();
-            clearTimeout(this.timeout);
-            this.props.saveRecentQuery(this.state.value);
-            this.props.searchDataOnEnter(this.state.value);
-            this.props.loadRecentQueries();
-        }
-
-        handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-            clearTimeout(this.timeout);
-            this.setState({ value: event.target.value });
-            this.timeout = window.setTimeout(
-                () => this.props.onSearch(this.state.value),
-                this.props.debounce || DEFAULT_SEARCH_DEBOUNCE
-            );
-            if (event.target.value.length > 0) {
-                this.props.onSetView(SearchView.AUTOCOMPLETE);
-            } else {
-                this.props.onSetView(SearchView.BASIC);
-            }
-        }
+            </ClickAwayListener>
+        );
     }
 );
+
+const getView = (props: SearchBarViewProps) => {
+    switch (props.currentView) {
+        case SearchView.AUTOCOMPLETE:
+            return <SearchBarAutocompleteView
+                navigateTo={props.navigateTo}
+                searchResults={props.searchResults}
+                searchValue={props.searchValue}
+                selectedItem={props.selectedItem} />;
+        case SearchView.ADVANCED:
+            return <SearchBarAdvancedView
+                closeAdvanceView={props.closeAdvanceView}
+                tags={props.tags} />;
+        default:
+            return <SearchBarBasicView
+                onSetView={props.onSetView}
+                onSearch={props.onSearch}
+                loadRecentQueries={props.loadRecentQueries}
+                savedQueries={props.savedQueries}
+                deleteSavedQuery={props.deleteSavedQuery}
+                editSavedQuery={props.editSavedQuery}
+                selectedItem={props.selectedItem} />;
+    }
+};
