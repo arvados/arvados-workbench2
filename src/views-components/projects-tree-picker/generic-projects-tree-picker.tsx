@@ -30,7 +30,7 @@ export interface ProjectsTreePickerDataProps {
     includeFiles?: boolean;
     rootItemIcon: IconType;
     showSelection?: boolean;
-    openOnActivation?: boolean;
+    openOnFirstActivation?: boolean;
     relatedTreePickers?: string[];
     loadRootItem: (item: TreeItem<ProjectsTreePickerRootItem>, pickerId: string, includeCollections?: boolean, inlcudeFiles?: boolean) => void;
 }
@@ -93,7 +93,7 @@ const mergeToggleItemActive = (
     ownProps: ProjectsTreePickerProps
 ): Partial<PickedTreePickerProps> => ({
     toggleItemActive: (event, item, pickerId) => {
-        if (ownProps.openOnActivation && !item.active) {
+        if (ownProps.openOnFirstActivation && item.status === TreeItemStatus.INITIAL) {
             dispatchProps.toggleItemOpen(event, item, pickerId);
         }
         dispatchProps.toggleItemActive(event, item, pickerId);

@@ -20,8 +20,8 @@ export type SidePanelTreesProps = Pick<ProjectsTreePickerProps, 'toggleItemActiv
 
 export const SidePanelTrees = (props: SidePanelTreesProps) =>
     <div>
-        <HomeTreePicker pickerId={SidePanelTreeId.HOME} openOnActivation {...{ relatedTreePickers }} {...props} />
-        <SharedTreePicker pickerId={SidePanelTreeId.SHARED} openOnActivation {...{ relatedTreePickers }} {...props} />
+        <HomeTreePicker pickerId={SidePanelTreeId.HOME} openOnFirstActivation {...{ relatedTreePickers }} {...props} />
+        <SharedTreePicker pickerId={SidePanelTreeId.SHARED} openOnFirstActivation {...{ relatedTreePickers }} {...props} />
         <WorkflowsTreePicker pickerId={SidePanelTreeId.WORKFLOWS} {...{ relatedTreePickers }} {...props} />
         <RecentTreePicker pickerId={SidePanelTreeId.RECENT} {...{ relatedTreePickers }} {...props} />
         <FavoritesTreePicker pickerId={SidePanelTreeId.FAVORITES} {...{ relatedTreePickers }} {...props} />
