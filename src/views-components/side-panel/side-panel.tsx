@@ -8,6 +8,7 @@ import { SidePanelTrees as SidePanelTreesComponent, SidePanelTreesProps } from '
 import { navigateFromSidePanel } from '~/store/side-panel/side-panel-action';
 import { Grid } from '@material-ui/core';
 import { SidePanelButton } from '~/views-components/side-panel-button/side-panel-button';
+import { openSidePanelContextMenu } from '~/store/context-menu/context-menu-actions';
 
 export const SidePanel = () =>
     <Grid item xs>
@@ -17,6 +18,7 @@ export const SidePanel = () =>
 
 const dispatchProps: SidePanelTreesProps = {
     toggleItemActive: (_, { id }) => navigateFromSidePanel(id),
+    onContextMenu: (event, { id }) => openSidePanelContextMenu(event, id),
 };
 
 const SidePanelTrees = connect(

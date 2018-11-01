@@ -16,7 +16,7 @@ import { IconType } from '~/components/icon/icon';
 
 const relatedTreePickers = values(SidePanelTreeId);
 
-export type SidePanelTreesProps = Pick<ProjectsTreePickerProps, 'toggleItemActive'>;
+export type SidePanelTreesProps = Pick<ProjectsTreePickerProps, 'toggleItemActive' | 'onContextMenu'>;
 
 export const SidePanelTrees = (props: SidePanelTreesProps) =>
     <div>

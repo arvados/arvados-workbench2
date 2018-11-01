@@ -14,6 +14,7 @@ import { GroupContentsResource } from '../../services/groups-service/groups-serv
 import { CollectionDirectory, CollectionFile } from '../../models/collection-file';
 import { getTreePicker, TreePicker } from './tree-picker';
 import { ProjectsTreePickerItem } from '~/views-components/projects-tree-picker/generic-projects-tree-picker';
+import { updateResources } from '../resources/resources-actions';
 
 export const treePickerActions = unionize({
     LOAD_TREE_PICKER_NODE: ofType<{ id: string, pickerId: string }>(),
@@ -105,7 +106,7 @@ export const loadProject = (params: LoadProjectParams) =>
         )(new FilterBuilder());
 
         const { items } = await services.groupsService.contents(loadShared ? '' : id, { filters, excludeHomeProject: loadShared || undefined });
-
+        dispatch(updateResources(items));
         dispatch<any>(receiveTreePickerData<GroupContentsResource>({
             id,
             pickerId,

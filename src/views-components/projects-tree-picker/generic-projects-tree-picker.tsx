@@ -15,6 +15,7 @@ import { GroupContentsResource } from '~/services/groups-service/groups-service'
 import { CollectionDirectory, CollectionFile, CollectionFileType } from '~/models/collection-file';
 import { ResourceKind } from '~/models/resource';
 import { TreePickerProps, TreePicker } from "~/views-components/tree-picker/tree-picker";
+import { Omit } from "lodash";
 
 export interface ProjectsTreePickerRootItem {
     id: string;
@@ -46,8 +47,7 @@ const mapDispatchToProps = (dispatch: Dispatch, {
     includeCollections,
     includeFiles,
     relatedTreePickers,
-    ...props }: ProjectsTreePickerProps): PickedTreePickerProps => ({
-        onContextMenu: () => { return; },
+    ...props }: ProjectsTreePickerProps): Omit<PickedTreePickerProps, 'onContextMenu'> => ({
         toggleItemActive: (event, item, pickerId) => {
             dispatch(treePickerActions.ACTIVATE_TREE_PICKER_NODE({ id: item.id, pickerId, relatedTreePickers }));
             if (props.toggleItemActive) {

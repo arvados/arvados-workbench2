@@ -65,6 +65,7 @@ export const openRootProjectContextMenu = (event: React.MouseEvent<HTMLElement>,
 
 export const openProjectContextMenu = (event: React.MouseEvent<HTMLElement>, projectUuid: string) =>
     (dispatch: Dispatch, getState: () => RootState) => {
+        event.preventDefault();
         const res = getResource<ProjectResource>(projectUuid)(getState().resources);
         if (res) {
             dispatch<any>(openContextMenu(event, {
