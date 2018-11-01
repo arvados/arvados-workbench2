@@ -20,6 +20,7 @@ import { SharedTreePicker } from "../projects-tree-picker/shared-tree-picker";
 import { SidePanelTreeId } from "~/store/side-panel-tree/side-panel-trees-actions";
 import { ProjectsTreePicker } from '~/views-components/projects-tree-picker/generic-projects-tree-picker';
 import { IconType } from '../../components/icon/icon';
+import { values } from 'lodash/fp';
 
 export interface SidePanelTreeProps {
     onItemActivation: (id: string) => void;
@@ -77,14 +78,16 @@ const getSidePanelIcon = (category: string) => {
     }
 };
 
+const relatedTreePickers = values(SidePanelTreeId);
+
 export const SidePanelTrees = () =>
     <div>
-        <HomeTreePicker pickerId={SidePanelTreeId.HOME} />
-        <SharedTreePicker pickerId={SidePanelTreeId.SHARED} />
-        <WorkflowsTreePicker pickerId={SidePanelTreeId.WORKFLOWS} />
-        <RecentTreePicker pickerId={SidePanelTreeId.RECENT} />
-        <FavoritesTreePicker pickerId={SidePanelTreeId.FAVORITES} />
-        <TrashTreePicker pickerId={SidePanelTreeId.TRASH} />
+        <HomeTreePicker pickerId={SidePanelTreeId.HOME} {...{relatedTreePickers}} />
+        <SharedTreePicker pickerId={SidePanelTreeId.SHARED} {...{relatedTreePickers}} />
+        <WorkflowsTreePicker pickerId={SidePanelTreeId.WORKFLOWS} {...{relatedTreePickers}} />
+        <RecentTreePicker pickerId={SidePanelTreeId.RECENT} {...{relatedTreePickers}} />
+        <FavoritesTreePicker pickerId={SidePanelTreeId.FAVORITES} {...{relatedTreePickers}} />
+        <TrashTreePicker pickerId={SidePanelTreeId.TRASH} {...{relatedTreePickers}} />
     </div>;
 
 const createPicker = (icon: IconType) =>
