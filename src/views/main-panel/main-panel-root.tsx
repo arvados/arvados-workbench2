@@ -10,6 +10,7 @@ import { WorkbenchPanel } from '~/views/workbench/workbench';
 import { LoginPanel } from '~/views/login-panel/login-panel';
 import { WorkbenchLoadingScreen } from '~/views/workbench/workbench-loading-screen';
 import { MainAppBar } from '~/views-components/main-app-bar/main-app-bar';
+import { FirstLoginDialog } from "~/views-components/first-login-dialog/first-login-dialog";
 
 type CssRules = 'root';
 
@@ -31,10 +32,15 @@ export interface MainPanelRootDataProps {
 type MainPanelRootProps = MainPanelRootDataProps & WithStyles<CssRules>;
 
 export const MainPanelRoot = withStyles(styles)(
-    ({ classes, loading, working, user, buildInfo }: MainPanelRootProps) =>
-        loading 
-            ? <WorkbenchLoadingScreen />
-            : <>
+    ({ classes, loading, working, user, buildInfo }: MainPanelRootProps) => {
+        if (loading) {
+            return <WorkbenchLoadingScreen />;
+        }
+        if (1) {
+            return <FirstLoginDialog />;
+        }
+        return (
+            <>
                 <MainAppBar
                     user={user}
                     buildInfo={buildInfo}>
@@ -44,4 +50,5 @@ export const MainPanelRoot = withStyles(styles)(
                     {user ? <WorkbenchPanel /> : <LoginPanel />}
                 </Grid>
             </>
-);
+        );
+    });
