@@ -17,7 +17,7 @@ import { initAuth } from "./store/auth/auth-action";
 import { createServices } from "./services/services";
 import { MuiThemeProvider } from '@material-ui/core/styles';
 import { CustomTheme } from './common/custom-theme';
-import { fetchConfig } from './common/config';
+import {fetchConfig, fetchFirstLoginTemplate} from './common/config';
 import { addMenuActionSet, ContextMenuKind } from './views-components/context-menu/context-menu';
 import { rootProjectActionSet } from "./views-components/context-menu/action-sets/root-project-action-set";
 import { projectActionSet } from "./views-components/context-menu/action-sets/project-action-set";
@@ -48,6 +48,7 @@ import { getBuildInfo } from '~/common/app-info';
 import { DragDropContextProvider } from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
 import { initAdvanceFormProjectsTree } from '~/store/search-bar/search-bar-actions';
+import { FirstLoginDialog } from "~/views-components/first-login-dialog/first-login-dialog";
 
 console.log(`Starting arvados [${getBuildInfo()}]`);
 
@@ -66,7 +67,9 @@ addMenuActionSet(ContextMenuKind.PROCESS_RESOURCE, processResourceActionSet);
 addMenuActionSet(ContextMenuKind.TRASH, trashActionSet);
 
 fetchConfig()
-    .then(({ config, apiHost }) => {
+    .then(fetchFirstLoginTemplate)
+    .then(({ config, apiHost, firstLoginTemplate }) => {
+        console.log(firstLoginTemplate);
         const history = createBrowserHistory();
         const services = createServices(config, {
             progressFn: (id, working) => {
@@ -85,8 +88,12 @@ fetchConfig()
         store.dispatch(setCurrentTokenDialogApiHost(apiHost));
         store.dispatch(setUuidPrefix(config.uuidPrefix));
 
+        // TODO: change to proper property
+        const userFirstLogin = true;
+
         const TokenComponent = (props: any) => <ApiToken authService={services.authService} {...props} />;
-        const MainPanelComponent = (props: any) => <MainPanel {...props} />;
+        const MainPanelComponent = (props: any) =>
+            userFirstLogin ? <FirstLoginDialog customHTML={firstLoginTemplate} /> : <MainPanel {...props} />;
 
         const App = () =>
             <MuiThemeProvider theme={CustomTheme}>

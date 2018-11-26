@@ -36,9 +36,6 @@ export const MainPanelRoot = withStyles(styles)(
         if (loading) {
             return <WorkbenchLoadingScreen />;
         }
-        if (1) {
-            return <FirstLoginDialog />;
-        }
         return (
             <>
                 <MainAppBar

@@ -51,6 +51,13 @@ export interface Config {
     workbenchUrl: string;
 }
 
+export const fetchFirstLoginTemplate = ({ config, apiHost }: any) => {
+    return Axios
+        .get<any>('https://localhost:3000/test.html')
+        .then(response => ({ config, apiHost, firstLoginTemplate: response.data }))
+        .catch(() => ({ config, apiHost, firstLoginTemplate: null }));
+};
+
 export const fetchConfig = () => {
     return Axios
         .get<ConfigJSON>(CONFIG_URL + "?nocache=" + (new Date()).getTime())
