@@ -4,9 +4,9 @@
 
 import * as React from "react";
 import { ListItemIcon, ListItemText, Button, ListItem } from "@material-ui/core";
-import { DownloadIcon } from "../../../components/icon/icon";
+import { DownloadIcon, IconType } from "../../../components/icon/icon";
 
-export const DownloadAction = (props: { href?: string, download?: string, onClick?: () => void }) => {
+export const DownloadAction = (props: { href?: string, download?: string, onClick?: () => void, icon?: IconType }) => {
     const targetProps = props.download ? {} : { target: '_blank' };
     const downloadProps = props.download ? { download: props.download } : {};
     return props.href
@@ -17,9 +17,11 @@ export const DownloadAction = (props: { href?: string, download?: string, onClic
             {...targetProps}
             {...downloadProps}>
             <ListItem button>
-                <ListItemIcon>
-                    <DownloadIcon />
-                </ListItemIcon>
+                {props.icon &&
+                    <ListItemIcon>
+                        <props.icon />
+                    </ListItemIcon>
+                }
                 <ListItemText>
                     Download
             </ListItemText>
