@@ -7,31 +7,32 @@ import {
     dataExplorerToListParams,
     getDataExplorerColumnFilters,
     listResultsToDataExplorerItemsMeta
-} from '../data-explorer/data-explorer-middleware-service';
-import { ProjectPanelColumnNames, ProjectPanelFilter } from "~/views/project-panel/project-panel";
-import { RootState } from "../store";
+} from '~/store/data-explorer/data-explorer-middleware-service';
+import { ProjectPanelColumnNames } from "~/views/project-panel/project-panel";
+import { RootState } from "~/store/store";
 import { DataColumns } from "~/components/data-table/data-table";
 import { ServiceRepository } from "~/services/services";
 import { SortDirection } from "~/components/data-table/data-column";
 import { OrderBuilder, OrderDirection } from "~/services/api/order-builder";
-import { FilterBuilder } from "~/services/api/filter-builder";
+import { FilterBuilder, joinFilters } from "~/services/api/filter-builder";
 import { GroupContentsResource, GroupContentsResourcePrefix } from "~/services/groups-service/groups-service";
-import { updateFavorites } from "../favorites/favorites-actions";
-import { PROJECT_PANEL_CURRENT_UUID, IS_PROJECT_PANEL_TRASHED, projectPanelActions } from './project-panel-action';
+import { updateFavorites } from "~/store/favorites/favorites-actions";
+import { PROJECT_PANEL_CURRENT_UUID, IS_PROJECT_PANEL_TRASHED, projectPanelActions } from '~/store/project-panel/project-panel-action';
 import { Dispatch, MiddlewareAPI } from "redux";
 import { ProjectResource } from "~/models/project";
 import { updateResources } from "~/store/resources/resources-actions";
 import { getProperty } from "~/store/properties/properties";
-import { snackbarActions, SnackbarKind } from '../snackbar/snackbar-actions';
+import { snackbarActions, SnackbarKind } from '~/store/snackbar/snackbar-actions';
 import { progressIndicatorActions } from '~/store/progress-indicator/progress-indicator-actions.ts';
-import { DataExplorer, getDataExplorer } from '../data-explorer/data-explorer-reducer';
-import { ListResults } from '~/services/common-service/common-resource-service';
-import { loadContainers } from '../processes/processes-actions';
+import { DataExplorer, getDataExplorer } from '~/store/data-explorer/data-explorer-reducer';
+import { ListResults } from '~/services/common-service/common-service';
+import { loadContainers } from '~/store/processes/processes-actions';
 import { ResourceKind } from '~/models/resource';
 import { getResource } from "~/store/resources/resources";
 import { CollectionResource } from "~/models/collection";
 import { resourcesDataActions } from "~/store/resources-data/resources-data-actions";
 import { getSortColumn } from "~/store/data-explorer/data-explorer-reducer";
+import { serializeResourceTypeFilters } from '~/store/resource-type-filters/resource-type-filters';
 
 export class ProjectPanelMiddlewareService extends DataExplorerMiddlewareService {
     constructor(private services: ServiceRepository, id: string) {
@@ -115,15 +116,22 @@ export const getParams = (dataExplorer: DataExplorer, isProjectTrashed: boolean)
 });
 
 export const getFilters = (dataExplorer: DataExplorer) => {
-    const columns = dataExplorer.columns as DataColumns<string, ProjectPanelFilter>;
-    const typeFilters = getDataExplorerColumnFilters(columns, ProjectPanelColumnNames.TYPE);
-    const statusFilters = getDataExplorerColumnFilters(columns, ProjectPanelColumnNames.STATUS);
-    return new FilterBuilder()
-        .addIsA("uuid", typeFilters.map(f => f.type))
+    const columns = dataExplorer.columns as DataColumns<string>;
+    const typeFilters = serializeResourceTypeFilters(getDataExplorerColumnFilters(columns, ProjectPanelColumnNames.TYPE));
+
+    // TODO: Extract group contents name filter
+    const nameFilters = new FilterBuilder()
         .addILike("name", dataExplorer.searchValue, GroupContentsResourcePrefix.COLLECTION)
         .addILike("name", dataExplorer.searchValue, GroupContentsResourcePrefix.PROCESS)
         .addILike("name", dataExplorer.searchValue, GroupContentsResourcePrefix.PROJECT)
         .getFilters();
+
+    return joinFilters(
+        typeFilters,
+        nameFilters,
+    );
+    // TODO: Restore process status filters
+    // const statusFilters = getDataExplorerColumnFilters(columns, ProjectPanelColumnNames.STATUS);
 };
 
 export const getOrder = (dataExplorer: DataExplorer) => {

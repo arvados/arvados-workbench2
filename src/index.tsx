@@ -5,31 +5,31 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Provider } from "react-redux";
-import { MainPanel } from './views/main-panel/main-panel';
-import './index.css';
+import { MainPanel } from '~/views/main-panel/main-panel';
+import '~/index.css';
 import { Route, Switch } from 'react-router';
 import createBrowserHistory from "history/createBrowserHistory";
 import { History } from "history";
-import { configureStore, RootStore } from './store/store';
+import { configureStore, RootStore } from '~/store/store';
 import { ConnectedRouter } from "react-router-redux";
-import { ApiToken } from "./views-components/api-token/api-token";
-import { initAuth } from "./store/auth/auth-action";
-import { createServices } from "./services/services";
+import { ApiToken } from "~/views-components/api-token/api-token";
+import { initAuth } from "~/store/auth/auth-action";
+import { createServices } from "~/services/services";
 import { MuiThemeProvider } from '@material-ui/core/styles';
-import { CustomTheme } from './common/custom-theme';
-import {fetchConfig, fetchFirstLoginTemplate} from './common/config';
-import { addMenuActionSet, ContextMenuKind } from './views-components/context-menu/context-menu';
-import { rootProjectActionSet } from "./views-components/context-menu/action-sets/root-project-action-set";
-import { projectActionSet } from "./views-components/context-menu/action-sets/project-action-set";
-import { resourceActionSet } from './views-components/context-menu/action-sets/resource-action-set';
-import { favoriteActionSet } from "./views-components/context-menu/action-sets/favorite-action-set";
-import { collectionFilesActionSet } from './views-components/context-menu/action-sets/collection-files-action-set';
-import { collectionFilesItemActionSet } from './views-components/context-menu/action-sets/collection-files-item-action-set';
-import { collectionFilesNotSelectedActionSet } from './views-components/context-menu/action-sets/collection-files-not-selected-action-set';
-import { collectionActionSet } from './views-components/context-menu/action-sets/collection-action-set';
-import { collectionResourceActionSet } from './views-components/context-menu/action-sets/collection-resource-action-set';
-import { processActionSet } from './views-components/context-menu/action-sets/process-action-set';
-import { loadWorkbench } from './store/workbench/workbench-actions';
+import { CustomTheme } from '~/common/custom-theme';
+import {fetchConfig, fetchFirstLoginTemplate} from '~/common/config';
+import { addMenuActionSet, ContextMenuKind } from '~/views-components/context-menu/context-menu';
+import { rootProjectActionSet } from "~/views-components/context-menu/action-sets/root-project-action-set";
+import { projectActionSet } from "~/views-components/context-menu/action-sets/project-action-set";
+import { resourceActionSet } from '~/views-components/context-menu/action-sets/resource-action-set';
+import { favoriteActionSet } from "~/views-components/context-menu/action-sets/favorite-action-set";
+import { collectionFilesActionSet } from '~/views-components/context-menu/action-sets/collection-files-action-set';
+import { collectionFilesItemActionSet } from '~/views-components/context-menu/action-sets/collection-files-item-action-set';
+import { collectionFilesNotSelectedActionSet } from '~/views-components/context-menu/action-sets/collection-files-not-selected-action-set';
+import { collectionActionSet } from '~/views-components/context-menu/action-sets/collection-action-set';
+import { collectionResourceActionSet } from '~/views-components/context-menu/action-sets/collection-resource-action-set';
+import { processActionSet } from '~/views-components/context-menu/action-sets/process-action-set';
+import { loadWorkbench } from '~/store/workbench/workbench-actions';
 import { Routes } from '~/routes/routes';
 import { trashActionSet } from "~/views-components/context-menu/action-sets/trash-action-set";
 import { ServiceRepository } from '~/services/services';
@@ -48,6 +48,14 @@ import { getBuildInfo } from '~/common/app-info';
 import { DragDropContextProvider } from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
 import { initAdvanceFormProjectsTree } from '~/store/search-bar/search-bar-actions';
+import { repositoryActionSet } from '~/views-components/context-menu/action-sets/repository-action-set';
+import { sshKeyActionSet } from '~/views-components/context-menu/action-sets/ssh-key-action-set';
+import { keepServiceActionSet } from '~/views-components/context-menu/action-sets/keep-service-action-set';
+import { loadVocabulary } from '~/store/vocabulary/vocabulary-actions';
+import { virtualMachineActionSet } from '~/views-components/context-menu/action-sets/virtual-machine-action-set';
+import { userActionSet } from '~/views-components/context-menu/action-sets/user-action-set';
+import { computeNodeActionSet } from '~/views-components/context-menu/action-sets/compute-node-action-set';
+import { apiClientAuthorizationActionSet } from '~/views-components/context-menu/action-sets/api-client-authorization-action-set';
 import { FirstLoginDialog } from "~/views-components/first-login-dialog/first-login-dialog";
 
 console.log(`Starting arvados [${getBuildInfo()}]`);
@@ -65,6 +73,13 @@ addMenuActionSet(ContextMenuKind.TRASHED_COLLECTION, trashedCollectionActionSet)
 addMenuActionSet(ContextMenuKind.PROCESS, processActionSet);
 addMenuActionSet(ContextMenuKind.PROCESS_RESOURCE, processResourceActionSet);
 addMenuActionSet(ContextMenuKind.TRASH, trashActionSet);
+addMenuActionSet(ContextMenuKind.REPOSITORY, repositoryActionSet);
+addMenuActionSet(ContextMenuKind.SSH_KEY, sshKeyActionSet);
+addMenuActionSet(ContextMenuKind.VIRTUAL_MACHINE, virtualMachineActionSet);
+addMenuActionSet(ContextMenuKind.KEEP_SERVICE, keepServiceActionSet);
+addMenuActionSet(ContextMenuKind.USER, userActionSet);
+addMenuActionSet(ContextMenuKind.NODE, computeNodeActionSet);
+addMenuActionSet(ContextMenuKind.API_CLIENT_AUTHORIZATION, apiClientAuthorizationActionSet);
 
 fetchConfig()
     .then(fetchFirstLoginTemplate)
@@ -87,6 +102,7 @@ fetchConfig()
         store.dispatch(setBuildInfo());
         store.dispatch(setCurrentTokenDialogApiHost(apiHost));
         store.dispatch(setUuidPrefix(config.uuidPrefix));
+        store.dispatch(loadVocabulary);
 
         // TODO: change to proper property
         const userFirstLogin = true;
@@ -307,3 +323,4 @@ const createSampleProcess = ({ containerRequestService }: ServiceRepository) => 
     });
 };
 
+// force build comment #1

@@ -6,10 +6,9 @@ import * as React from "react";
 import { Toolbar, IconButton, Tooltip, Grid } from "@material-ui/core";
 import { DetailsIcon } from "~/components/icon/icon";
 import { Breadcrumbs } from "~/views-components/breadcrumbs/breadcrumbs";
-import { detailsPanelActions } from "~/store/details-panel/details-panel-action";
 import { connect } from 'react-redux';
 import { RootState } from '~/store/store';
-import { matchWorkflowRoute } from '~/routes/routes';
+import * as Routes from '~/routes/routes';
 import { toggleDetailsPanel } from '~/store/details-panel/details-panel-action';
 
 interface MainContentBarProps {
@@ -17,14 +16,16 @@ interface MainContentBarProps {
     buttonVisible: boolean;
 }
 
-const isWorkflowPath = ({ router }: RootState) => {
+const isButtonVisible = ({ router }: RootState) => {
     const pathname = router.location ? router.location.pathname : '';
-    const match = matchWorkflowRoute(pathname);
-    return !!match;
+    return !Routes.matchWorkflowRoute(pathname) && !Routes.matchVirtualMachineRoute(pathname) &&
+        !Routes.matchRepositoriesRoute(pathname) && !Routes.matchSshKeysRoute(pathname) &&
+        !Routes.matchKeepServicesRoute(pathname) && !Routes.matchComputeNodesRoute(pathname) &&
+        !Routes.matchApiClientAuthorizationsRoute(pathname) && !Routes.matchUsersRoute(pathname);
 };
 
 export const MainContentBar = connect((state: RootState) => ({
-    buttonVisible: !isWorkflowPath(state)
+    buttonVisible: isButtonVisible(state)
 }), {
         onDetailsPanelToggle: toggleDetailsPanel
     })((props: MainContentBarProps) =>
@@ -34,11 +35,11 @@ export const MainContentBar = connect((state: RootState) => ({
                     <Breadcrumbs />
                 </Grid>
                 <Grid item>
-                    {props.buttonVisible ? <Tooltip title="Additional Info">
+                    {props.buttonVisible && <Tooltip title="Additional Info">
                         <IconButton color="inherit" onClick={props.onDetailsPanelToggle}>
                             <DetailsIcon />
                         </IconButton>
-                    </Tooltip> : null}
+                    </Tooltip>}
                 </Grid>
             </Grid>
         </Toolbar>);

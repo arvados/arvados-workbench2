@@ -7,11 +7,11 @@ import { Dispatch } from "redux";
 import { CollectionFilesTree, CollectionFileType } from "~/models/collection-file";
 import { ServiceRepository } from "~/services/services";
 import { RootState } from "../../store";
-import { snackbarActions } from "../../snackbar/snackbar-actions";
+import { snackbarActions, SnackbarKind } from "../../snackbar/snackbar-actions";
 import { dialogActions } from '../../dialog/dialog-actions';
 import { getNodeValue } from "~/models/tree";
 import { filterCollectionFilesBySelection } from './collection-panel-files-state';
-import { startSubmit, stopSubmit, reset, initialize } from 'redux-form';
+import { startSubmit, stopSubmit, reset, initialize, FormErrors } from 'redux-form';
 import { getDialog } from "~/store/dialog/dialog-reducer";
 import { getFileFullPath } from "~/services/collection-service/collection-service-files-response";
 import { resourcesDataActions } from "~/store/resources-data/resources-data-actions";
@@ -37,10 +37,18 @@ export const removeCollectionFiles = (filePaths: string[]) =>
     async (dispatch: Dispatch, getState: () => RootState, services: ServiceRepository) => {
         const currentCollection = getState().collectionPanel.item;
         if (currentCollection) {
-            dispatch(snackbarActions.OPEN_SNACKBAR({ message: 'Removing ...' }));
-            await services.collectionService.deleteFiles(currentCollection.uuid, filePaths);
-            dispatch<any>(loadCollectionFiles(currentCollection.uuid));
-            dispatch(snackbarActions.OPEN_SNACKBAR({ message: 'Removed.', hideDuration: 2000 }));
+            dispatch(snackbarActions.OPEN_SNACKBAR({ message: 'Removing...' }));
+            try {
+                await services.collectionService.deleteFiles('', filePaths);
+                dispatch<any>(loadCollectionFiles(currentCollection.uuid));
+                dispatch(snackbarActions.OPEN_SNACKBAR({ message: 'Removed.', hideDuration: 2000 }));
+            } catch (e) {
+                dispatch(snackbarActions.OPEN_SNACKBAR({
+                    message: 'Could not remove file.',
+                    hideDuration: 2000,
+                    kind: SnackbarKind.ERROR
+                }));
+            }
         }
     };
 
@@ -122,7 +130,10 @@ export const renameFile = (newName: string) =>
                     dispatch(dialogActions.CLOSE_DIALOG({ id: RENAME_FILE_DIALOG }));
                     dispatch(snackbarActions.OPEN_SNACKBAR({ message: 'File name changed.', hideDuration: 2000 }));
                 } catch (e) {
-                    dispatch(stopSubmit(RENAME_FILE_DIALOG, { name: 'Could not rename the file' }));
+                    const errors: FormErrors<RenameFileDialogData, string> = {
+                        name: 'Could not rename the file'
+                    };
+                    dispatch(stopSubmit(RENAME_FILE_DIALOG, errors));
                 }
             }
         }

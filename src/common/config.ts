@@ -49,6 +49,7 @@ export interface Config {
     version: string;
     websocketUrl: string;
     workbenchUrl: string;
+    vocabularyUrl: string;
 }
 
 export const fetchFirstLoginTemplate = ({ config, apiHost }: any) => {
@@ -65,7 +66,11 @@ export const fetchConfig = () => {
         .catch(() => Promise.resolve(getDefaultConfig()))
         .then(config => Axios
             .get<Config>(getDiscoveryURL(config.API_HOST))
-            .then(response => ({ config: response.data, apiHost: config.API_HOST })));
+            .then(response => ({ 
+                // TODO: After tests delete `|| '/vocabulary-example.json'`
+                config: {...response.data, vocabularyUrl: config.VOCABULARY_URL || '/vocabulary-example.json' }, 
+                apiHost: config.API_HOST, 
+            })));
 
 };
 
@@ -112,15 +117,18 @@ export const mockConfig = (config: Partial<Config>): Config => ({
     version: '',
     websocketUrl: '',
     workbenchUrl: '',
+    vocabularyUrl: '',
     ...config
 });
 
 interface ConfigJSON {
     API_HOST: string;
+    VOCABULARY_URL: string;
 }
 
 const getDefaultConfig = (): ConfigJSON => ({
     API_HOST: process.env.REACT_APP_ARVADOS_API_HOST || "",
+    VOCABULARY_URL: "",
 });
 
 const getDiscoveryURL = (apiHost: string) => `${window.location.protocol}//${apiHost}/discovery/v1/apis/arvados/v1/rest`;

@@ -8,7 +8,6 @@ import { DataColumns } from '~/components/data-table/data-table';
 import { DataTableFilterItem } from '~/components/data-table-filters/data-table-filters';
 import { ResourceKind } from '~/models/resource';
 import { ContainerRequestState } from '~/models/container-request';
-import { resourceLabel } from '~/common/labels';
 import { SearchBarAdvanceFormData } from '~/models/search-bar';
 import { SEARCH_RESULTS_PANEL_ID } from '~/store/search-results-panel/search-results-panel-actions';
 import { DataExplorer } from '~/views-components/data-explorer/data-explorer';
@@ -20,6 +19,8 @@ import {
     ResourceOwner,
     ResourceType
 } from '~/views-components/data-explorer/renderers';
+import { createTree } from '~/models/tree';
+import { getInitialResourceTypeFilters } from '~/store/resource-type-filters/resource-type-filters';
 
 export enum SearchResultsPanelColumnNames {
     NAME = "Name",
@@ -48,64 +49,48 @@ export interface WorkflowPanelFilter extends DataTableFilterItem {
     type: ResourceKind | ContainerRequestState;
 }
 
-export const searchResultsPanelColumns: DataColumns<string, WorkflowPanelFilter> = [
+export const searchResultsPanelColumns: DataColumns<string> = [
     {
         name: SearchResultsPanelColumnNames.NAME,
         selected: true,
         configurable: true,
         sortDirection: SortDirection.ASC,
-        filters: [],
+        filters: createTree(),
         render: (uuid: string) => <ResourceName uuid={uuid} />
     },
     {
         name: SearchResultsPanelColumnNames.PROJECT,
         selected: true,
         configurable: true,
-        filters: [],
+        filters: createTree(),
         render: uuid => <ResourceFileSize uuid={uuid} />
     },
     {
         name: SearchResultsPanelColumnNames.STATUS,
         selected: true,
         configurable: true,
-        filters: [],
+        filters: createTree(),
         render: uuid => <ProcessStatus uuid={uuid} />
     },
     {
         name: SearchResultsPanelColumnNames.TYPE,
         selected: true,
         configurable: true,
-        filters: [
-            {
-                name: resourceLabel(ResourceKind.COLLECTION),
-                selected: true,
-                type: ResourceKind.COLLECTION
-            },
-            {
-                name: resourceLabel(ResourceKind.PROCESS),
-                selected: true,
-                type: ResourceKind.PROCESS
-            },
-            {
-                name: resourceLabel(ResourceKind.PROJECT),
-                selected: true,
-                type: ResourceKind.PROJECT
-            }
-        ],
+        filters: getInitialResourceTypeFilters(),
         render: (uuid: string) => <ResourceType uuid={uuid} />,
     },
     {
         name: SearchResultsPanelColumnNames.OWNER,
         selected: true,
         configurable: true,
-        filters: [],
+        filters: createTree(),
         render: uuid => <ResourceOwner uuid={uuid} />
     },
     {
         name: SearchResultsPanelColumnNames.FILE_SIZE,
         selected: true,
         configurable: true,
-        filters: [],
+        filters: createTree(),
         render: uuid => <ResourceFileSize uuid={uuid} />
     },
     {
@@ -113,7 +98,7 @@ export const searchResultsPanelColumns: DataColumns<string, WorkflowPanelFilter>
         selected: true,
         configurable: true,
         sortDirection: SortDirection.NONE,
-        filters: [],
+        filters: createTree(),
         render: uuid => <ResourceLastModifiedDate uuid={uuid} />
     }
 ];

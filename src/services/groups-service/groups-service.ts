@@ -3,7 +3,8 @@
 // SPDX-License-Identifier: AGPL-3.0
 
 import * as _ from "lodash";
-import { CommonResourceService, ListResults, ListArguments } from '~/services/common-service/common-resource-service';
+import { CommonResourceService } from '~/services/common-service/common-resource-service';
+import { ListResults, ListArguments } from '~/services/common-service/common-service';
 import { AxiosInstance } from "axios";
 import { CollectionResource } from "~/models/collection";
 import { ProjectResource } from "~/models/project";
@@ -59,7 +60,7 @@ export class GroupsService<T extends GroupResource = GroupResource> extends Tras
         const { items, ...res } = response;
         const mappedItems = items.map((item: GroupContentsResource) => {
             const mappedItem = TrashableResourceService.mapKeys(_.camelCase)(item);
-            if (item.kind === ResourceKind.COLLECTION) {
+            if (item.kind === ResourceKind.COLLECTION || item.kind === ResourceKind.PROJECT) {
                 const { properties } = item;
                 return { ...mappedItem, properties };
             } else {

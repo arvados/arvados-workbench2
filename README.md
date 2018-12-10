@@ -40,9 +40,14 @@ The app will fetch runtime configuration when starting. By default it will try t
 Currently this configuration schema is supported:
 ```
 {
-    "API_HOST": "string"
+    "API_HOST": "string",
+    "VOCABULARY_URL": "string"
 }
 ```
+
+#### VOCABULARY_URL
+Local path, or any URL that allows cross-origin requests. See 
+[Vocabulary JSON file example](public/vocabulary-example.json).
 
 ### Licensing
 

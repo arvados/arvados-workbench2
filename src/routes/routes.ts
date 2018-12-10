@@ -16,10 +16,18 @@ export const Routes = {
     FAVORITES: '/favorites',
     TRASH: '/trash',
     PROCESS_LOGS: `/process-logs/:id(${RESOURCE_UUID_PATTERN})`,
+    REPOSITORIES: '/repositories',
     SHARED_WITH_ME: '/shared-with-me',
     RUN_PROCESS: '/run-process',
+    VIRTUAL_MACHINES: '/virtual-machines',
     WORKFLOWS: '/workflows',
-    SEARCH_RESULTS: '/search-results'
+    SEARCH_RESULTS: '/search-results',
+    SSH_KEYS: `/ssh-keys`,
+    MY_ACCOUNT: '/my-account',
+    KEEP_SERVICES: `/keep-services`,
+    COMPUTE_NODES: `/nodes`,
+    USERS: '/users',
+    API_CLIENT_AUTHORIZATIONS: `/api_client_authorizations`
 };
 
 export const getResourceUrl = (uuid: string) => {
@@ -70,9 +78,33 @@ export const matchSharedWithMeRoute = (route: string) =>
 
 export const matchRunProcessRoute = (route: string) =>
     matchPath(route, { path: Routes.RUN_PROCESS });
-    
+
 export const matchWorkflowRoute = (route: string) =>
     matchPath<ResourceRouteParams>(route, { path: Routes.WORKFLOWS });
 
 export const matchSearchResultsRoute = (route: string) =>
     matchPath<ResourceRouteParams>(route, { path: Routes.SEARCH_RESULTS });
+
+export const matchVirtualMachineRoute = (route: string) =>
+    matchPath<ResourceRouteParams>(route, { path: Routes.VIRTUAL_MACHINES });
+
+export const matchRepositoriesRoute = (route: string) =>
+    matchPath<ResourceRouteParams>(route, { path: Routes.REPOSITORIES });
+
+export const matchSshKeysRoute = (route: string) =>
+    matchPath(route, { path: Routes.SSH_KEYS });
+
+export const matchMyAccountRoute = (route: string) =>
+    matchPath(route, { path: Routes.MY_ACCOUNT });
+
+export const matchKeepServicesRoute = (route: string) =>
+    matchPath(route, { path: Routes.KEEP_SERVICES });
+
+export const matchUsersRoute = (route: string) =>
+    matchPath(route, { path: Routes.USERS });
+
+export const matchComputeNodesRoute = (route: string) =>
+    matchPath(route, { path: Routes.COMPUTE_NODES });
+
+export const matchApiClientAuthorizationsRoute = (route: string) =>
+    matchPath(route, { path: Routes.API_CLIENT_AUTHORIZATIONS });

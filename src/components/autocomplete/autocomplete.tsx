@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: AGPL-3.0
 
 import * as React from 'react';
-import { Input as MuiInput, Chip as MuiChip, Popper as MuiPopper, Paper, FormControl, InputLabel, StyleRulesCallback, withStyles, RootRef, ListItemText, ListItem, List } from '@material-ui/core';
+import { Input as MuiInput, Chip as MuiChip, Popper as MuiPopper, Paper as MuiPaper, FormControl, InputLabel, StyleRulesCallback, withStyles, RootRef, ListItemText, ListItem, List, FormHelperText } from '@material-ui/core';
 import { PopperProps } from '@material-ui/core/Popper';
 import { WithStyles } from '@material-ui/core/styles';
 import { noop } from 'lodash';
@@ -13,6 +13,8 @@ export interface AutocompleteProps<Item, Suggestion> {
     value: string;
     items: Item[];
     suggestions?: Suggestion[];
+    error?: boolean;
+    helperText?: string;
     onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
     onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void;
     onFocus?: (event: React.FocusEvent<HTMLInputElement>) => void;
@@ -25,11 +27,13 @@ export interface AutocompleteProps<Item, Suggestion> {
 
 export interface AutocompleteState {
     suggestionsOpen: boolean;
+    selectedSuggestionIndex: number;
 }
 export class Autocomplete<Value, Suggestion> extends React.Component<AutocompleteProps<Value, Suggestion>, AutocompleteState> {
 
     state = {
         suggestionsOpen: false,
+        selectedSuggestionIndex: 0,
     };
 
     containerRef = React.createRef<HTMLDivElement>();
@@ -38,9 +42,10 @@ export class Autocomplete<Value, Suggestion> extends React.Component<Autocomplet
     render() {
         return (
             <RootRef rootRef={this.containerRef}>
-                <FormControl fullWidth>
+                <FormControl fullWidth error={this.props.error}>
                     {this.renderLabel()}
                     {this.renderInput()}
+                    {this.renderHelperText()}
                     {this.renderSuggestions()}
                 </FormControl>
             </RootRef>
@@ -61,20 +66,30 @@ export class Autocomplete<Value, Suggestion> extends React.Component<Autocomplet
             onBlur={this.handleBlur}
             onChange={this.props.onChange}
             onKeyPress={this.handleKeyPress}
+            onKeyDown={this.handleNavigationKeyPress}
         />;
+    }
+
+    renderHelperText() {
+        return <FormHelperText>{this.props.helperText}</FormHelperText>;
     }
 
     renderSuggestions() {
         const { suggestions = [] } = this.props;
         return (
             <Popper
-                open={this.state.suggestionsOpen && suggestions.length > 0}
-                anchorEl={this.containerRef.current}>
+                open={this.isSuggestionBoxOpen()}
+                anchorEl={this.inputRef.current}
+                key={suggestions.length}>
                 <Paper onMouseDown={this.preventBlur}>
                     <List dense style={{ width: this.getSuggestionsWidth() }}>
                         {suggestions.map(
                             (suggestion, index) =>
-                                <ListItem button key={index} onClick={this.handleSelect(suggestion)}>
+                                <ListItem
+                                    button
+                                    key={index}
+                                    onClick={this.handleSelect(suggestion)}
+                                    selected={index === this.state.selectedSuggestionIndex}>
                                     {this.renderSuggestion(suggestion)}
                                 </ListItem>
                         )}
@@ -82,6 +97,11 @@ export class Autocomplete<Value, Suggestion> extends React.Component<Autocomplet
                 </Paper>
             </Popper>
         );
+    }
+
+    isSuggestionBoxOpen() {
+        const { suggestions = [] } = this.props;
+        return this.state.suggestionsOpen && suggestions.length > 0;
     }
 
     handleFocus = (event: React.FocusEvent<HTMLInputElement>) => {
@@ -98,11 +118,33 @@ export class Autocomplete<Value, Suggestion> extends React.Component<Autocomplet
         });
     }
 
-    handleKeyPress = ({ key }: React.KeyboardEvent<HTMLInputElement>) => {
-        const { onCreate = noop } = this.props;
-        if (key === 'Enter' && this.props.value.length > 0) {
-            onCreate();
+    handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
+        const { onCreate = noop, onSelect = noop, suggestions = [] } = this.props;
+        const { selectedSuggestionIndex } = this.state;
+        if (event.key === 'Enter') {
+            if (this.isSuggestionBoxOpen() && selectedSuggestionIndex < suggestions.length) {
+                // prevent form submissions when selecting a suggestion
+                event.preventDefault(); 
+                onSelect(suggestions[selectedSuggestionIndex]);
+            } else if (this.props.value.length > 0) {
+                onCreate();
+            }
         }
+    }
+
+    handleNavigationKeyPress = ({ key }: React.KeyboardEvent<HTMLInputElement>) => {
+        if (key === 'ArrowUp') {
+            this.updateSelectedSuggestionIndex(-1);
+        } else if (key === 'ArrowDown') {
+            this.updateSelectedSuggestionIndex(1);
+        }
+    }
+
+    updateSelectedSuggestionIndex(value: -1 | 1) {
+        const { suggestions = [] } = this.props;
+        this.setState(({ selectedSuggestionIndex }) => ({
+            selectedSuggestionIndex: (selectedSuggestionIndex + value) % suggestions.length
+        }));
     }
 
     renderChips() {
@@ -192,3 +234,10 @@ const inputStyles: StyleRulesCallback<InputClasses> = () => ({
 });
 
 const Input = withStyles(inputStyles)(MuiInput);
+
+const Paper = withStyles({
+    root: {
+        maxHeight: '80vh',
+        overflowY: 'auto',
+    }
+})(MuiPaper);

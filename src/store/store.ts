@@ -43,6 +43,13 @@ import { searchBarReducer } from './search-bar/search-bar-reducer';
 import { SEARCH_RESULTS_PANEL_ID } from '~/store/search-results-panel/search-results-panel-actions';
 import { SearchResultsMiddlewareService } from './search-results-panel/search-results-middleware-service';
 import { resourcesDataReducer } from "~/store/resources-data/resources-data-reducer";
+import { virtualMachinesReducer } from "~/store/virtual-machines/virtual-machines-reducer";
+import { repositoriesReducer } from '~/store/repositories/repositories-reducer';
+import { keepServicesReducer } from '~/store/keep-services/keep-services-reducer';
+import { UserMiddlewareService } from '~/store/users/user-panel-middleware-service';
+import { USERS_PANEL_ID } from '~/store/users/users-actions';
+import { computeNodesReducer } from '~/store/compute-nodes/compute-nodes-reducer';
+import { apiClientAuthorizationsReducer } from '~/store/api-client-authorizations/api-client-authorizations-reducer';
 
 const composeEnhancers =
     (process.env.NODE_ENV === 'development' &&
@@ -74,6 +81,9 @@ export function configureStore(history: History, services: ServiceRepository): R
     const workflowPanelMiddleware = dataExplorerMiddleware(
         new WorkflowMiddlewareService(services, WORKFLOW_PANEL_ID)
     );
+    const userPanelMiddleware = dataExplorerMiddleware(
+        new UserMiddlewareService(services, USERS_PANEL_ID)
+    );
 
     const middlewares: Middleware[] = [
         routerMiddleware(history),
@@ -83,7 +93,8 @@ export function configureStore(history: History, services: ServiceRepository): R
         trashPanelMiddleware,
         searchResultsPanelMiddleware,
         sharedWithMePanelMiddleware,
-        workflowPanelMiddleware
+        workflowPanelMiddleware,
+        userPanelMiddleware
     ];
     const enhancer = composeEnhancers(applyMiddleware(...middlewares));
     return createStore(rootReducer, enhancer);
@@ -111,5 +122,10 @@ const createRootReducer = (services: ServiceRepository) => combineReducers({
     progressIndicator: progressIndicatorReducer,
     runProcessPanel: runProcessPanelReducer,
     appInfo: appInfoReducer,
-    searchBar: searchBarReducer
+    searchBar: searchBarReducer,
+    virtualMachines: virtualMachinesReducer,
+    repositories: repositoriesReducer,
+    keepServices: keepServicesReducer,
+    computeNodes: computeNodesReducer,
+    apiClientAuthorizations: apiClientAuthorizationsReducer
 });

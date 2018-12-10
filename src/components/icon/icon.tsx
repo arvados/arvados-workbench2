@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: AGPL-3.0
 
 import * as React from 'react';
-import AccessTime from '@material-ui/icons/AccessTime';
 import Add from '@material-ui/icons/Add';
 import ArrowBack from '@material-ui/icons/ArrowBack';
 import ArrowDropDown from '@material-ui/icons/ArrowDropDown';
@@ -32,6 +31,7 @@ import Input from '@material-ui/icons/Input';
 import InsertDriveFile from '@material-ui/icons/InsertDriveFile';
 import LastPage from '@material-ui/icons/LastPage';
 import LibraryBooks from '@material-ui/icons/LibraryBooks';
+import ListAlt from '@material-ui/icons/ListAlt';
 import Menu from '@material-ui/icons/Menu';
 import MoreVert from '@material-ui/icons/MoreVert';
 import Mail from '@material-ui/icons/Mail';
@@ -49,12 +49,14 @@ import SettingsEthernet from '@material-ui/icons/SettingsEthernet';
 import Star from '@material-ui/icons/Star';
 import StarBorder from '@material-ui/icons/StarBorder';
 import Warning from '@material-ui/icons/Warning';
+import VpnKey from '@material-ui/icons/VpnKey';
 
 export type IconType = React.SFC<{ className?: string, style?: object }>;
 
 export const AddIcon: IconType = (props) => <Add {...props} />;
 export const AddFavoriteIcon: IconType = (props) => <StarBorder {...props} />;
 export const AdvancedIcon: IconType = (props) => <SettingsApplications {...props} />;
+export const AttributesIcon: IconType = (props) => <ListAlt {...props} />;
 export const BackIcon: IconType = (props) => <ArrowBack {...props} />;
 export const CustomizeTableIcon: IconType = (props) => <Menu {...props} />;
 export const CommandIcon: IconType = (props) => <LastPage {...props} />;
@@ -72,6 +74,7 @@ export const HelpIcon: IconType = (props) => <Help {...props} />;
 export const HelpOutlineIcon: IconType = (props) => <HelpOutline {...props} />;
 export const ImportContactsIcon: IconType = (props) => <ImportContacts {...props} />;
 export const InputIcon: IconType = (props) => <InsertDriveFile {...props} />;
+export const KeyIcon: IconType = (props) => <VpnKey {...props} />;
 export const LogIcon: IconType = (props) => <SettingsEthernet {...props} />;
 export const MailIcon: IconType = (props) => <Mail {...props} />;
 export const MoreOptionsIcon: IconType = (props) => <MoreVert {...props} />;
@@ -86,7 +89,6 @@ export const ProcessIcon: IconType = (props) => <BubbleChart {...props} />;
 export const ProjectIcon: IconType = (props) => <Folder {...props} />;
 export const ProjectsIcon: IconType = (props) => <Inbox {...props} />;
 export const ProvenanceGraphIcon: IconType = (props) => <DeviceHub {...props} />;
-export const RecentIcon: IconType = (props) => <AccessTime {...props} />;
 export const RemoveIcon: IconType = (props) => <Delete {...props} />;
 export const RemoveFavoriteIcon: IconType = (props) => <Star {...props} />;
 export const RenameIcon: IconType = (props) => <Edit {...props} />;

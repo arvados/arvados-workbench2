@@ -31,6 +31,10 @@ export class FilterBuilder {
         return this.addCondition(field, "in", value, "", "", resourcePrefix);
     }
 
+    public addNotIn(field: string, value?: string | string[], resourcePrefix?: string) {
+        return this.addCondition(field, "not in", value, "", "", resourcePrefix);
+    }
+
     public addGt(field: string, value?: string, resourcePrefix?: string) {
         return this.addCondition(field, ">", value, "", "", resourcePrefix);
     }
@@ -45,6 +49,10 @@ export class FilterBuilder {
 
     public addLte(field: string, value?: string, resourcePrefix?: string) {
         return this.addCondition(field, "<=", value, "", "", resourcePrefix);
+    }
+
+    public addExists(value?: string, resourcePrefix?: string) {
+        return this.addCondition("properties", "exists", value, "", "", resourcePrefix);
     }
 
     public getFilters() {
@@ -62,10 +70,12 @@ export class FilterBuilder {
             }
 
             const resPrefix = resourcePrefix
-                ? _.snakeCase(resourcePrefix) + "."
+                ? resourcePrefix + "."
                 : "";
 
-            this.filters += `${this.filters ? "," : ""}["${resPrefix}${_.snakeCase(field)}","${cond}",${value}]`;
+            const fld = field.indexOf('properties.') < 0 ? _.snakeCase(field) : field;
+
+            this.filters += `${this.filters ? "," : ""}["${resPrefix}${fld}","${cond}",${value}]`;
         }
         return this;
     }

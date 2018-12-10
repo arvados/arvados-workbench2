@@ -61,3 +61,19 @@ export const navigateToSharedWithMe = push(Routes.SHARED_WITH_ME);
 export const navigateToRunProcess = push(Routes.RUN_PROCESS);
 
 export const navigateToSearchResults = push(Routes.SEARCH_RESULTS);
+
+export const navigateToVirtualMachines = push(Routes.VIRTUAL_MACHINES);
+
+export const navigateToRepositories = push(Routes.REPOSITORIES);
+
+export const navigateToSshKeys= push(Routes.SSH_KEYS);
+
+export const navigateToMyAccount = push(Routes.MY_ACCOUNT);
+
+export const navigateToKeepServices = push(Routes.KEEP_SERVICES);
+
+export const navigateToComputeNodes = push(Routes.COMPUTE_NODES);
+
+export const navigateToUsers = push(Routes.USERS);
+
+export const navigateToApiClientAuthorizations = push(Routes.API_CLIENT_AUTHORIZATIONS);

@@ -55,6 +55,7 @@ const getMenuActionSet = (resource?: ContextMenuResource): ContextMenuActionSet 
 };
 
 export enum ContextMenuKind {
+    API_CLIENT_AUTHORIZATION = "ApiClientAuthorization",
     ROOT_PROJECT = "RootProject",
     PROJECT = "Project",
     RESOURCE = "Resource",
@@ -68,5 +69,11 @@ export enum ContextMenuKind {
     TRASHED_COLLECTION = 'TrashedCollection',
     PROCESS = "Process",
     PROCESS_RESOURCE = 'ProcessResource',
-    PROCESS_LOGS = "ProcessLogs"
+    PROCESS_LOGS = "ProcessLogs",
+    REPOSITORY = "Repository",
+    SSH_KEY = "SshKey",
+    VIRTUAL_MACHINE = "VirtualMachine",
+    KEEP_SERVICE = "KeepService",
+    USER = "User",
+    NODE = "Node"
 }
