@@ -3,17 +3,22 @@
 // SPDX-License-Identifier: AGPL-3.0
 
 import * as React from "react";
-import { Field, WrappedFieldProps, FieldArray } from 'redux-form';
+import { Field, WrappedFieldProps, FieldArray, formValues } from 'redux-form';
 import { TextField, DateTextField } from "~/components/text-field/text-field";
 import { CheckboxField } from '~/components/checkbox-field/checkbox-field';
 import { NativeSelectField } from '~/components/select-field/select-field';
 import { ResourceKind } from '~/models/resource';
-import { ClusterObjectType } from '~/models/search-bar';
 import { HomeTreePicker } from '~/views-components/projects-tree-picker/home-tree-picker';
 import { SEARCH_BAR_ADVANCE_FORM_PICKER_ID } from '~/store/search-bar/search-bar-actions';
 import { SearchBarAdvancedPropertiesView } from '~/views-components/search-bar/search-bar-advanced-properties-view';
 import { TreeItem } from "~/components/tree/tree";
 import { ProjectsTreePickerItem } from "~/views-components/projects-tree-picker/generic-projects-tree-picker";
+import { PropertyKeyInput } from '~/views-components/resource-properties-form/property-key-field';
+import { PropertyValueInput, PropertyValueFieldProps } from '~/views-components/resource-properties-form/property-value-field';
+import { VocabularyProp, connectVocabulary } from '~/views-components/resource-properties-form/property-field-common';
+import { compose } from 'redux';
+import { connect } from "react-redux";
+import { RootState } from "~/store/store";
 
 export const SearchBarTypeField = () =>
     <Field
@@ -26,16 +31,25 @@ export const SearchBarTypeField = () =>
             { key: ResourceKind.PROCESS, value: 'Process' }
         ]} />;
 
-export const SearchBarClusterField = () =>
-    <Field
+
+interface SearchBarClusterFieldProps {
+    clusters: { key: string, value: string }[];
+}
+
+export const SearchBarClusterField = connect(
+    (state: RootState) => ({
+        clusters: [{key: '', value: 'Any'}].concat(
+            state.auth.sessions
+                .filter(s => s.loggedIn)
+                .map(s => ({
+                    key: s.clusterId,
+                    value: s.clusterId
+                })))
+    }))((props: SearchBarClusterFieldProps) => <Field
         name='cluster'
         component={NativeSelectField}
-        items={[
-            { key: '', value: 'Any' },
-            { key: ClusterObjectType.INDIANAPOLIS, value: 'Indianapolis' },
-            { key: ClusterObjectType.KAISERAUGST, value: 'Kaiseraugst' },
-            { key: ClusterObjectType.PENZBERG, value: 'Penzberg' }
-        ]} />;
+        items={props.clusters}/>
+    );
 
 export const SearchBarProjectField = () =>
     <Field
@@ -50,7 +64,7 @@ const ProjectsPicker = (props: WrappedFieldProps) =>
                 (_: any, { id }: TreeItem<ProjectsTreePickerItem>) => {
                     props.input.onChange(id);
                 }
-            }/>
+            } />
     </div>;
 
 export const SearchBarTrashField = () =>
@@ -74,17 +88,22 @@ export const SearchBarPropertiesField = () =>
         name="properties"
         component={SearchBarAdvancedPropertiesView} />;
 
-export const SearchBarKeyField = () =>
-    <Field
-        name='key'
-        component={TextField}
-        label="Key" />;
+export const SearchBarKeyField = connectVocabulary(
+    ({ vocabulary }: VocabularyProp) =>
+        <Field
+            name='key'
+            component={PropertyKeyInput}
+            vocabulary={vocabulary} />);
 
-export const SearchBarValueField = () =>
-    <Field
-        name='value'
-        component={TextField}
-        label="Value" />;
+export const SearchBarValueField = compose(
+    connectVocabulary,
+    formValues({ propertyKey: 'key' })
+)(
+    (props: PropertyValueFieldProps) =>
+        <Field
+            name='value'
+            component={PropertyValueInput}
+            {...props} />);
 
 export const SearchBarSaveSearchField = () =>
     <Field

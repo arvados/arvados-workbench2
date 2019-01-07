@@ -5,21 +5,37 @@
 import { Dispatch } from 'redux';
 import { RootState } from "~/store/store";
 import { loadDetailsPanel } from '~/store/details-panel/details-panel-action';
-import { snackbarActions } from '~/store/snackbar/snackbar-actions';
-import { loadFavoritePanel } from '~/store/favorite-panel/favorite-panel-action';
-import { openProjectPanel, projectPanelActions, setIsProjectPanelTrashed } from '~/store/project-panel/project-panel-action';
-import { activateSidePanelTreeItem, initSidePanelTree, SidePanelTreeCategory, loadSidePanelTreeProjects } from '~/store/side-panel-tree/side-panel-tree-actions';
+import { snackbarActions, SnackbarKind } from '~/store/snackbar/snackbar-actions';
+import { favoritePanelActions, loadFavoritePanel } from '~/store/favorite-panel/favorite-panel-action';
+import {
+    getProjectPanelCurrentUuid,
+    openProjectPanel,
+    projectPanelActions,
+    setIsProjectPanelTrashed
+} from '~/store/project-panel/project-panel-action';
+import {
+    activateSidePanelTreeItem,
+    initSidePanelTree,
+    loadSidePanelTreeProjects,
+    SidePanelTreeCategory
+} from '~/store/side-panel-tree/side-panel-tree-actions';
 import { loadResource, updateResources } from '~/store/resources/resources-actions';
-import { favoritePanelActions } from '~/store/favorite-panel/favorite-panel-action';
 import { projectPanelColumns } from '~/views/project-panel/project-panel';
 import { favoritePanelColumns } from '~/views/favorite-panel/favorite-panel';
 import { matchRootRoute } from '~/routes/routes';
-import { setSidePanelBreadcrumbs, setProcessBreadcrumbs, setSharedWithMeBreadcrumbs, setTrashBreadcrumbs, setBreadcrumbs } from '~/store/breadcrumbs/breadcrumbs-actions';
+import {
+    setBreadcrumbs,
+    setGroupDetailsBreadcrumbs,
+    setGroupsBreadcrumbs,
+    setProcessBreadcrumbs,
+    setSharedWithMeBreadcrumbs,
+    setSidePanelBreadcrumbs,
+    setTrashBreadcrumbs
+} from '~/store/breadcrumbs/breadcrumbs-actions';
 import { navigateToProject } from '~/store/navigation/navigation-action';
 import { MoveToFormDialogData } from '~/store/move-to-dialog/move-to-dialog';
 import { ServiceRepository } from '~/services/services';
 import { getResource } from '~/store/resources/resources';
-import { getProjectPanelCurrentUuid } from '~/store/project-panel/project-panel-action';
 import * as projectCreateActions from '~/store/projects/project-create-actions';
 import * as projectMoveActions from '~/store/projects/project-move-actions';
 import * as projectUpdateActions from '~/store/projects/project-update-actions';
@@ -35,33 +51,47 @@ import { trashPanelColumns } from "~/views/trash-panel/trash-panel";
 import { loadTrashPanel, trashPanelActions } from "~/store/trash-panel/trash-panel-action";
 import { initProcessLogsPanel } from '~/store/process-logs-panel/process-logs-panel-actions';
 import { loadProcessPanel } from '~/store/process-panel/process-panel-actions';
-import { sharedWithMePanelActions } from '~/store/shared-with-me-panel/shared-with-me-panel-actions';
-import { loadSharedWithMePanel } from '~/store/shared-with-me-panel/shared-with-me-panel-actions';
+import {
+    loadSharedWithMePanel,
+    sharedWithMePanelActions
+} from '~/store/shared-with-me-panel/shared-with-me-panel-actions';
 import { CopyFormDialogData } from '~/store/copy-dialog/copy-dialog';
 import { loadWorkflowPanel, workflowPanelActions } from '~/store/workflow-panel/workflow-panel-actions';
-import { loadSshKeysPanel } from '~/store/auth/auth-action';
+import { loadSshKeysPanel } from '~/store/auth/auth-action-ssh';
 import { loadMyAccountPanel } from '~/store/my-account/my-account-panel-actions';
+import { loadSiteManagerPanel } from '~/store/auth/auth-action-session';
 import { workflowPanelColumns } from '~/views/workflow-panel/workflow-panel-view';
 import { progressIndicatorActions } from '~/store/progress-indicator/progress-indicator-actions';
 import { getProgressIndicator } from '~/store/progress-indicator/progress-indicator-reducer';
-import { ResourceKind, extractUuidKind } from '~/models/resource';
+import { extractUuidKind, ResourceKind } from '~/models/resource';
 import { FilterBuilder } from '~/services/api/filter-builder';
 import { GroupContentsResource } from '~/services/groups-service/groups-service';
-import { unionize, ofType, UnionOf, MatchCases } from '~/common/unionize';
+import { MatchCases, ofType, unionize, UnionOf } from '~/common/unionize';
 import { loadRunProcessPanel } from '~/store/run-process-panel/run-process-panel-actions';
 import { loadCollectionFiles } from '~/store/collection-panel/collection-panel-files/collection-panel-files-actions';
-import { SnackbarKind } from '~/store/snackbar/snackbar-actions';
 import { collectionPanelActions } from "~/store/collection-panel/collection-panel-action";
 import { CollectionResource } from "~/models/collection";
-import { searchResultsPanelActions, loadSearchResultsPanel } from '~/store/search-results-panel/search-results-panel-actions';
+import {
+    loadSearchResultsPanel,
+    searchResultsPanelActions
+} from '~/store/search-results-panel/search-results-panel-actions';
 import { searchResultsPanelColumns } from '~/views/search-results-panel/search-results-panel-view';
 import { loadVirtualMachinesPanel } from '~/store/virtual-machines/virtual-machines-actions';
 import { loadRepositoriesPanel } from '~/store/repositories/repositories-actions';
 import { loadKeepServicesPanel } from '~/store/keep-services/keep-services-actions';
 import { loadUsersPanel, userBindedActions } from '~/store/users/users-actions';
+import { linkPanelActions, loadLinkPanel } from '~/store/link-panel/link-panel-actions';
+import { computeNodesActions, loadComputeNodesPanel } from '~/store/compute-nodes/compute-nodes-actions';
+import { linkPanelColumns } from '~/views/link-panel/link-panel-root';
 import { userPanelColumns } from '~/views/user-panel/user-panel';
-import { loadComputeNodesPanel } from '~/store/compute-nodes/compute-nodes-actions';
-import { loadApiClientAuthorizationsPanel } from '~/store/api-client-authorizations/api-client-authorizations-actions';
+import { computeNodePanelColumns } from '~/views/compute-node-panel/compute-node-panel-root';
+import { loadApiClientAuthorizationsPanel, apiClientAuthorizationsActions } from '~/store/api-client-authorizations/api-client-authorizations-actions';
+import { apiClientAuthorizationPanelColumns } from '~/views/api-client-authorization-panel/api-client-authorization-panel-root';
+import * as groupPanelActions from '~/store/groups-panel/groups-panel-actions';
+import { groupsPanelColumns } from '~/views/groups-panel/groups-panel';
+import * as groupDetailsPanelActions from '~/store/group-details-panel/group-details-panel-actions';
+import { groupDetailsPanelColumns } from '~/views/group-details-panel/group-details-panel';
+import { DataTableFetchMode } from "~/components/data-table/data-table";
 
 export const WORKBENCH_LOADING_SCREEN = 'workbenchLoadingScreen';
 
@@ -94,8 +124,15 @@ export const loadWorkbench = () =>
                 dispatch(trashPanelActions.SET_COLUMNS({ columns: trashPanelColumns }));
                 dispatch(sharedWithMePanelActions.SET_COLUMNS({ columns: projectPanelColumns }));
                 dispatch(workflowPanelActions.SET_COLUMNS({ columns: workflowPanelColumns }));
+                dispatch(searchResultsPanelActions.SET_FETCH_MODE({ fetchMode: DataTableFetchMode.INFINITE }));
                 dispatch(searchResultsPanelActions.SET_COLUMNS({ columns: searchResultsPanelColumns }));
                 dispatch(userBindedActions.SET_COLUMNS({ columns: userPanelColumns }));
+                dispatch(groupPanelActions.GroupsPanelActions.SET_COLUMNS({ columns: groupsPanelColumns }));
+                dispatch(groupDetailsPanelActions.GroupDetailsPanelActions.SET_COLUMNS({columns: groupDetailsPanelColumns}));
+                dispatch(linkPanelActions.SET_COLUMNS({ columns: linkPanelColumns }));
+                dispatch(computeNodesActions.SET_COLUMNS({ columns: computeNodePanelColumns }));
+                dispatch(apiClientAuthorizationsActions.SET_COLUMNS({ columns: apiClientAuthorizationPanelColumns }));
+
                 dispatch<any>(initSidePanelTree());
                 if (router.location) {
                     const match = matchRootRoute(router.location.pathname);
@@ -170,7 +207,8 @@ export const createProject = (data: projectCreateActions.ProjectCreateFormDialog
         if (newProject) {
             dispatch(snackbarActions.OPEN_SNACKBAR({
                 message: "Project has been successfully created.",
-                hideDuration: 2000
+                hideDuration: 2000,
+                kind: SnackbarKind.SUCCESS
             }));
             await dispatch<any>(loadSidePanelTreeProjects(newProject.ownerUuid));
             dispatch<any>(reloadProjectMatchingUuid([newProject.ownerUuid]));
@@ -184,14 +222,14 @@ export const moveProject = (data: MoveToFormDialogData) =>
             const oldOwnerUuid = oldProject ? oldProject.ownerUuid : '';
             const movedProject = await dispatch<any>(projectMoveActions.moveProject(data));
             if (movedProject) {
-                dispatch(snackbarActions.OPEN_SNACKBAR({ message: 'Project has been moved', hideDuration: 2000 }));
+                dispatch(snackbarActions.OPEN_SNACKBAR({ message: 'Project has been moved', hideDuration: 2000, kind: SnackbarKind.SUCCESS }));
                 if (oldProject) {
                     await dispatch<any>(loadSidePanelTreeProjects(oldProject.ownerUuid));
                 }
                 dispatch<any>(reloadProjectMatchingUuid([oldOwnerUuid, movedProject.ownerUuid, movedProject.uuid]));
             }
         } catch (e) {
-            dispatch(snackbarActions.OPEN_SNACKBAR({ message: e.message, hideDuration: 2000 }));
+            dispatch(snackbarActions.OPEN_SNACKBAR({ message: e.message, hideDuration: 2000, kind: SnackbarKind.ERROR }));
         }
     };
 
@@ -201,7 +239,8 @@ export const updateProject = (data: projectUpdateActions.ProjectUpdateFormDialog
         if (updatedProject) {
             dispatch(snackbarActions.OPEN_SNACKBAR({
                 message: "Project has been successfully updated.",
-                hideDuration: 2000
+                hideDuration: 2000,
+                kind: SnackbarKind.SUCCESS
             }));
             await dispatch<any>(loadSidePanelTreeProjects(updatedProject.ownerUuid));
             dispatch<any>(reloadProjectMatchingUuid([updatedProject.ownerUuid, updatedProject.uuid]));
@@ -247,7 +286,8 @@ export const createCollection = (data: collectionCreateActions.CollectionCreateF
         if (collection) {
             dispatch(snackbarActions.OPEN_SNACKBAR({
                 message: "Collection has been successfully created.",
-                hideDuration: 2000
+                hideDuration: 2000,
+                kind: SnackbarKind.SUCCESS
             }));
             dispatch<any>(updateResources([collection]));
             dispatch<any>(reloadProjectMatchingUuid([collection.ownerUuid]));
@@ -260,7 +300,8 @@ export const updateCollection = (data: collectionUpdateActions.CollectionUpdateF
         if (collection) {
             dispatch(snackbarActions.OPEN_SNACKBAR({
                 message: "Collection has been successfully updated.",
-                hideDuration: 2000
+                hideDuration: 2000,
+                kind: SnackbarKind.SUCCESS
             }));
             dispatch<any>(updateResources([collection]));
             dispatch<any>(reloadProjectMatchingUuid([collection.ownerUuid]));
@@ -294,7 +335,7 @@ export const moveCollection = (data: MoveToFormDialogData) =>
             dispatch<any>(reloadProjectMatchingUuid([collection.ownerUuid]));
             dispatch(snackbarActions.OPEN_SNACKBAR({ message: 'Collection has been moved.', hideDuration: 2000, kind: SnackbarKind.SUCCESS }));
         } catch (e) {
-            dispatch(snackbarActions.OPEN_SNACKBAR({ message: e.message, hideDuration: 2000 }));
+            dispatch(snackbarActions.OPEN_SNACKBAR({ message: e.message, hideDuration: 2000, kind: SnackbarKind.ERROR }));
         }
     };
 
@@ -315,13 +356,14 @@ export const updateProcess = (data: processUpdateActions.ProcessUpdateFormDialog
             if (process) {
                 dispatch(snackbarActions.OPEN_SNACKBAR({
                     message: "Process has been successfully updated.",
-                    hideDuration: 2000
+                    hideDuration: 2000,
+                    kind: SnackbarKind.SUCCESS
                 }));
                 dispatch<any>(updateResources([process]));
                 dispatch<any>(reloadProjectMatchingUuid([process.ownerUuid]));
             }
         } catch (e) {
-            dispatch(snackbarActions.OPEN_SNACKBAR({ message: e.message, hideDuration: 2000 }));
+            dispatch(snackbarActions.OPEN_SNACKBAR({ message: e.message, hideDuration: 2000, kind: SnackbarKind.ERROR }));
         }
     };
 
@@ -331,9 +373,9 @@ export const moveProcess = (data: MoveToFormDialogData) =>
             const process = await dispatch<any>(processMoveActions.moveProcess(data));
             dispatch<any>(updateResources([process]));
             dispatch<any>(reloadProjectMatchingUuid([process.ownerUuid]));
-            dispatch(snackbarActions.OPEN_SNACKBAR({ message: 'Process has been moved.', hideDuration: 2000 }));
+            dispatch(snackbarActions.OPEN_SNACKBAR({ message: 'Process has been moved.', hideDuration: 2000, kind: SnackbarKind.SUCCESS }));
         } catch (e) {
-            dispatch(snackbarActions.OPEN_SNACKBAR({ message: e.message, hideDuration: 2000 }));
+            dispatch(snackbarActions.OPEN_SNACKBAR({ message: e.message, hideDuration: 2000, kind: SnackbarKind.ERROR }));
         }
     };
 
@@ -343,9 +385,9 @@ export const copyProcess = (data: CopyFormDialogData) =>
             const process = await dispatch<any>(processCopyActions.copyProcess(data));
             dispatch<any>(updateResources([process]));
             dispatch<any>(reloadProjectMatchingUuid([process.ownerUuid]));
-            dispatch(snackbarActions.OPEN_SNACKBAR({ message: 'Process has been copied.', hideDuration: 2000 }));
+            dispatch(snackbarActions.OPEN_SNACKBAR({ message: 'Process has been copied.', hideDuration: 2000, kind: SnackbarKind.SUCCESS }));
         } catch (e) {
-            dispatch(snackbarActions.OPEN_SNACKBAR({ message: e.message, hideDuration: 2000 }));
+            dispatch(snackbarActions.OPEN_SNACKBAR({ message: e.message, hideDuration: 2000, kind: SnackbarKind.ERROR }));
         }
     };
 
@@ -360,15 +402,18 @@ export const loadProcessLog = (uuid: string) =>
 
 export const resourceIsNotLoaded = (uuid: string) =>
     snackbarActions.OPEN_SNACKBAR({
-        message: `Resource identified by ${uuid} is not loaded.`
+        message: `Resource identified by ${uuid} is not loaded.`,
+        kind: SnackbarKind.ERROR
     });
 
 export const userIsNotAuthenticated = snackbarActions.OPEN_SNACKBAR({
-    message: 'User is not authenticated'
+    message: 'User is not authenticated',
+    kind: SnackbarKind.ERROR
 });
 
 export const couldNotLoadUser = snackbarActions.OPEN_SNACKBAR({
-    message: 'Could not load user'
+    message: 'Could not load user',
+    kind: SnackbarKind.ERROR
 });
 
 export const reloadProjectMatchingUuid = (matchingUuids: string[]) =>
@@ -402,6 +447,11 @@ export const loadSearchResults = handleFirstTimeLoad(
         await dispatch(loadSearchResultsPanel());
     });
 
+export const loadLinks = handleFirstTimeLoad(
+    async (dispatch: Dispatch<any>) => {
+        await dispatch(loadLinkPanel());
+    });
+
 export const loadVirtualMachines = handleFirstTimeLoad(
     async (dispatch: Dispatch<any>) => {
         await dispatch(loadVirtualMachinesPanel());
@@ -418,6 +468,11 @@ export const loadSshKeys = handleFirstTimeLoad(
     async (dispatch: Dispatch<any>) => {
         await dispatch(loadSshKeysPanel());
     });
+
+export const loadSiteManager = handleFirstTimeLoad(
+async (dispatch: Dispatch<any>) => {
+    await dispatch(loadSiteManagerPanel());
+});
 
 export const loadMyAccount = handleFirstTimeLoad(
     (dispatch: Dispatch<any>) => {
@@ -444,6 +499,20 @@ export const loadApiClientAuthorizations = handleFirstTimeLoad(
     async (dispatch: Dispatch<any>) => {
         await dispatch(loadApiClientAuthorizationsPanel());
     });
+
+export const loadGroupsPanel = handleFirstTimeLoad(
+    (dispatch: Dispatch<any>) => {
+        dispatch(setGroupsBreadcrumbs());
+        dispatch(groupPanelActions.loadGroupsPanel());
+    });
+
+
+export const loadGroupDetailsPanel = (groupUuid: string) =>
+    handleFirstTimeLoad(
+        (dispatch: Dispatch<any>) => {
+            dispatch(setGroupDetailsBreadcrumbs(groupUuid));
+            dispatch(groupDetailsPanelActions.loadGroupDetailsPanel(groupUuid));
+        });
 
 const finishLoadingProject = (project: GroupContentsResource | string) =>
     async (dispatch: Dispatch<any>) => {

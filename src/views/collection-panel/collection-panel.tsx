@@ -17,16 +17,17 @@ import { CollectionResource } from '~/models/collection';
 import { CollectionPanelFiles } from '~/views-components/collection-panel-files/collection-panel-files';
 import * as CopyToClipboard from 'react-copy-to-clipboard';
 import { CollectionTagForm } from './collection-tag-form';
-import { deleteCollectionTag } from '~/store/collection-panel/collection-panel-action';
-import { snackbarActions } from '~/store/snackbar/snackbar-actions';
+import { deleteCollectionTag, navigateToProcess } from '~/store/collection-panel/collection-panel-action';
+import {snackbarActions, SnackbarKind} from '~/store/snackbar/snackbar-actions';
 import { getResource } from '~/store/resources/resources';
 import { openContextMenu } from '~/store/context-menu/context-menu-actions';
 import { ContextMenuKind } from '~/views-components/context-menu/context-menu';
 import { formatFileSize } from "~/common/formatters";
 import { getResourceData } from "~/store/resources-data/resources-data";
 import { ResourceData } from "~/store/resources-data/resources-data-reducer";
+import { openDetailsPanel } from '~/store/details-panel/details-panel-action';
 
-type CssRules = 'card' | 'iconHeader' | 'tag' | 'copyIcon' | 'label' | 'value';
+type CssRules = 'card' | 'iconHeader' | 'tag' | 'copyIcon' | 'label' | 'value' | 'link';
 
 const styles: StyleRulesCallback<CssRules> = (theme: ArvadosTheme) => ({
     card: {
@@ -52,6 +53,13 @@ const styles: StyleRulesCallback<CssRules> = (theme: ArvadosTheme) => ({
     value: {
         textTransform: 'none',
         fontSize: '0.875rem'
+    },
+    link: {
+        fontSize: '0.875rem',
+        color: theme.palette.primary.main,
+        '&:hover': {
+            cursor: 'pointer'
+        }
     }
 });
 
@@ -63,7 +71,6 @@ interface CollectionPanelDataProps {
 type CollectionPanelProps = CollectionPanelDataProps & DispatchProp
     & WithStyles<CssRules> & RouteComponentProps<{ id: string }>;
 
-
 export const CollectionPanel = withStyles(styles)(
     connect((state: RootState, props: RouteComponentProps<{ id: string }>) => {
         const item = getResource(props.match.params.id)(state.resources);
@@ -71,13 +78,18 @@ export const CollectionPanel = withStyles(styles)(
         return { item, data };
     })(
         class extends React.Component<CollectionPanelProps> {
+
             render() {
-                const { classes, item, data } = this.props;
+                const { classes, item, data, dispatch } = this.props;
                 return item
                     ? <>
                         <Card className={classes.card}>
                             <CardHeader
-                                avatar={<CollectionIcon className={classes.iconHeader} />}
+                                avatar={
+                                    <IconButton onClick={this.openCollectionDetails}>
+                                        <CollectionIcon className={classes.iconHeader} />
+                                    </IconButton>
+                                }
                                 action={
                                     <Tooltip title="More options" disableFocusListener>
                                         <IconButton
@@ -88,7 +100,9 @@ export const CollectionPanel = withStyles(styles)(
                                     </Tooltip>
                                 }
                                 title={item && item.name}
-                                subheader={item && item.description} />
+                                titleTypographyProps={this.titleProps}
+                                subheader={item && item.description}
+                                subheaderTypographyProps={this.titleProps} />
                             <CardContent>
                                 <Grid container direction="column">
                                     <Grid item xs={6}>
@@ -107,6 +121,9 @@ export const CollectionPanel = withStyles(styles)(
                                             label='Content size' value={data && formatFileSize(data.fileSize)} />
                                         <DetailsAttribute classLabel={classes.label} classValue={classes.value}
                                             label='Owner' value={item && item.ownerUuid} />
+                                        <span onClick={() => dispatch<any>(navigateToProcess(item.properties.container_request || item.properties.containerRequest))}>
+                                            <DetailsAttribute classLabel={classes.link} label='Link to process' />
+                                        </span>
                                     </Grid>
                                 </Grid>
                             </CardContent>
@@ -160,9 +177,22 @@ export const CollectionPanel = withStyles(styles)(
             onCopy = () => {
                 this.props.dispatch(snackbarActions.OPEN_SNACKBAR({
                     message: "Uuid has been copied",
-                    hideDuration: 2000
+                    hideDuration: 2000,
+                    kind: SnackbarKind.SUCCESS
                 }));
             }
+
+            openCollectionDetails = () => {
+                const { item } = this.props;
+                if (item) {
+                    this.props.dispatch(openDetailsPanel(item.uuid));
+                }
+            }
+
+            titleProps = {
+                onClick: this.openCollectionDetails
+            };
+
         }
     )
 );

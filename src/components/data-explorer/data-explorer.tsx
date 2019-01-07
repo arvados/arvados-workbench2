@@ -3,17 +3,18 @@
 // SPDX-License-Identifier: AGPL-3.0
 
 import * as React from 'react';
-import { Grid, Paper, Toolbar, StyleRulesCallback, withStyles, WithStyles, TablePagination, IconButton, Tooltip } from '@material-ui/core';
+import { Grid, Paper, Toolbar, StyleRulesCallback, withStyles, WithStyles, TablePagination, IconButton, Tooltip, Button } from '@material-ui/core';
 import { ColumnSelector } from "~/components/column-selector/column-selector";
-import { DataTable, DataColumns } from "~/components/data-table/data-table";
+import { DataTable, DataColumns, DataTableFetchMode } from "~/components/data-table/data-table";
 import { DataColumn, SortDirection } from "~/components/data-table/data-column";
 import { SearchInput } from '~/components/search-input/search-input';
 import { ArvadosTheme } from "~/common/custom-theme";
 import { createTree } from '~/models/tree';
 import { DataTableFilters } from '~/components/data-table-filters/data-table-filters-tree';
 import { MoreOptionsIcon } from '~/components/icon/icon';
+import { PaperProps } from '@material-ui/core/Paper';
 
-type CssRules = 'searchBox' | "toolbar" | "footer" | "root" | 'moreOptionsButton' | 'rootUserPanel';
+type CssRules = 'searchBox' | "toolbar" | "footer" | "root" | 'moreOptionsButton';
 
 const styles: StyleRulesCallback<CssRules> = (theme: ArvadosTheme) => ({
     searchBox: {
@@ -28,16 +29,13 @@ const styles: StyleRulesCallback<CssRules> = (theme: ArvadosTheme) => ({
     root: {
         height: '100%'
     },
-    rootUserPanel: {
-        height: '100%',
-        boxShadow: 'none'
-    },
     moreOptionsButton: {
         padding: 0
     }
 });
 
 interface DataExplorerDataProps<T> {
+    fetchMode: DataTableFetchMode;
     items: T[];
     itemsAvailable: number;
     columns: DataColumns<T>;
@@ -48,7 +46,11 @@ interface DataExplorerDataProps<T> {
     contextMenuColumn: boolean;
     dataTableDefaultView?: React.ReactNode;
     working?: boolean;
-    isUserPanel?: boolean;
+    hideColumnSelector?: boolean;
+    paperProps?: PaperProps;
+    actions?: React.ReactNode;
+    hideSearchInput?: boolean;
+    paperKey?: string;
 }
 
 interface DataExplorerActionProps<T> {
@@ -62,6 +64,7 @@ interface DataExplorerActionProps<T> {
     onFiltersChange: (filters: DataTableFilters, column: DataColumn<T>) => void;
     onChangePage: (page: number) => void;
     onChangeRowsPerPage: (rowsPerPage: number) => void;
+    onLoadMore: (page: number) => void;
     extractKey?: (item: T) => React.Key;
 }
 
@@ -79,21 +82,23 @@ export const DataExplorer = withStyles(styles)(
                 columns, onContextMenu, onFiltersChange, onSortToggle, working, extractKey,
                 rowsPerPage, rowsPerPageOptions, onColumnToggle, searchValue, onSearch,
                 items, itemsAvailable, onRowClick, onRowDoubleClick, classes,
-                dataTableDefaultView, isUserPanel
+                dataTableDefaultView, hideColumnSelector, actions, paperProps, hideSearchInput,
+                paperKey, fetchMode
             } = this.props;
-            return <Paper className={!isUserPanel ? classes.root : classes.rootUserPanel}>
-                <Toolbar className={!isUserPanel ? classes.toolbar : ''}>
+            return <Paper className={classes.root} {...paperProps} key={paperKey}>
+                {(!hideColumnSelector || !hideSearchInput) && <Toolbar className={classes.toolbar}>
                     <Grid container justify="space-between" wrap="nowrap" alignItems="center">
-                        <div className={classes.searchBox}>
+                        {!hideSearchInput && <div className={classes.searchBox}>
                             <SearchInput
                                 value={searchValue}
                                 onSearch={onSearch} />
-                        </div>
-                        {!isUserPanel && <ColumnSelector
+                        </div>}
+                        {actions}
+                        {!hideColumnSelector && <ColumnSelector
                             columns={columns}
                             onColumnToggle={onColumnToggle} />}
                     </Grid>
-                </Toolbar>
+                </Toolbar>}
                 <DataTable
                     columns={this.props.contextMenuColumn ? [...columns, this.contextMenuColumn] : columns}
                     items={items}
@@ -104,18 +109,21 @@ export const DataExplorer = withStyles(styles)(
                     onSortToggle={onSortToggle}
                     extractKey={extractKey}
                     working={working}
-                    defaultView={dataTableDefaultView}
-                />
+                    defaultView={dataTableDefaultView} />
                 <Toolbar className={classes.footer}>
                     <Grid container justify="flex-end">
-                        <TablePagination
+                        {fetchMode === DataTableFetchMode.PAGINATED ? <TablePagination
                             count={itemsAvailable}
                             rowsPerPage={rowsPerPage}
                             rowsPerPageOptions={rowsPerPageOptions}
                             page={this.props.page}
                             onChangePage={this.changePage}
                             onChangeRowsPerPage={this.changeRowsPerPage}
-                            component="div" />
+                            component="div" /> : <Button
+                                variant="text"
+                                size="medium"
+                                onClick={this.loadMore}
+                                >Load more</Button>}
                     </Grid>
                 </Toolbar>
             </Paper>;
@@ -127,6 +135,10 @@ export const DataExplorer = withStyles(styles)(
 
         changeRowsPerPage: React.ChangeEventHandler<HTMLTextAreaElement | HTMLInputElement> = (event) => {
             this.props.onChangeRowsPerPage(parseInt(event.target.value, 10));
+        }
+
+        loadMore = () => {
+            this.props.onLoadMore(this.props.page + 1);
         }
 
         renderContextMenuTrigger = (item: T) =>
@@ -142,7 +154,6 @@ export const DataExplorer = withStyles(styles)(
             name: "Actions",
             selected: true,
             configurable: false,
-            sortDirection: SortDirection.NONE,
             filters: createTree(),
             key: "context-actions",
             render: this.renderContextMenuTrigger

@@ -23,7 +23,8 @@ interface Props {
 const mapStateToProps = (state: RootState, { id }: Props) => {
     const progress = state.progressIndicator.find(p => p.id === id);
     const working = progress && progress.working;
-    return { ...getDataExplorer(state.dataExplorer, id), working };
+    const currentRoute = state.router.location ? state.router.location.pathname : '';
+    return { ...getDataExplorer(state.dataExplorer, id), working, paperKey: currentRoute };
 };
 
 const mapDispatchToProps = () => {
@@ -54,6 +55,10 @@ const mapDispatchToProps = () => {
 
         onChangeRowsPerPage: (rowsPerPage: number) => {
             dispatch(dataExplorerActions.SET_ROWS_PER_PAGE({ id, rowsPerPage }));
+        },
+
+        onLoadMore: (page: number) => {
+            dispatch(dataExplorerActions.SET_PAGE({ id, page }));
         },
 
         onRowClick,

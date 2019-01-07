@@ -5,8 +5,15 @@
 import * as React from 'react';
 import { WrappedFieldProps } from 'redux-form';
 import { ArvadosTheme } from '~/common/custom-theme';
-import { TextField as MaterialTextField, StyleRulesCallback, WithStyles, withStyles } from '@material-ui/core';
+import {
+    TextField as MaterialTextField,
+    StyleRulesCallback,
+    WithStyles,
+    withStyles,
+    PropTypes
+} from '@material-ui/core';
 import RichTextEditor from 'react-rte';
+import Margin = PropTypes.Margin;
 
 type CssRules = 'textField';
 
@@ -18,11 +25,12 @@ const styles: StyleRulesCallback<CssRules> = (theme: ArvadosTheme) => ({
 
 type TextFieldProps = WrappedFieldProps & WithStyles<CssRules>;
 
-export const TextField = withStyles(styles)((props: TextFieldProps & { 
-    label?: string, autoFocus?: boolean, required?: boolean, select?: boolean, disabled?: boolean, children: React.ReactNode
+export const TextField = withStyles(styles)((props: TextFieldProps & {
+    label?: string, autoFocus?: boolean, required?: boolean, select?: boolean, disabled?: boolean, children: React.ReactNode, margin?: Margin, placeholder?: string,
+    helperText?: string, type?: string,
 }) =>
     <MaterialTextField
-        helperText={props.meta.touched && props.meta.error}
+        helperText={(props.meta.touched && props.meta.error) || props.helperText}
         className={props.classes.textField}
         label={props.label}
         disabled={props.disabled || props.meta.submitting}
@@ -33,6 +41,9 @@ export const TextField = withStyles(styles)((props: TextFieldProps & {
         required={props.required}
         select={props.select}
         children={props.children}
+        margin={props.margin}
+        placeholder={props.placeholder}
+        type={props.type}
         {...props.input}
     />);
 

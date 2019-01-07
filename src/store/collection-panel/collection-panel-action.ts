@@ -13,6 +13,8 @@ import { TagProperty } from "~/models/tag";
 import { snackbarActions } from "../snackbar/snackbar-actions";
 import { resourcesActions } from "~/store/resources/resources-actions";
 import { unionize, ofType, UnionOf } from '~/common/unionize';
+import { SnackbarKind } from '~/store/snackbar/snackbar-actions';
+import { navigateTo } from '~/store/navigation/navigation-action';
 
 export const collectionPanelActions = unionize({
     SET_COLLECTION: ofType<CollectionResource>(),
@@ -44,12 +46,22 @@ export const createCollectionTag = (data: TagProperty) =>
                 item.properties[data.key] = data.value;
                 const updatedCollection = await services.collectionService.update(uuid, item);
                 dispatch(resourcesActions.SET_RESOURCES([updatedCollection]));
-                dispatch(snackbarActions.OPEN_SNACKBAR({ message: "Tag has been successfully added.", hideDuration: 2000 }));
+                dispatch(snackbarActions.OPEN_SNACKBAR({ message: "Tag has been successfully added.", hideDuration: 2000, kind: SnackbarKind.SUCCESS }));
                 return updatedCollection;
             }
             return;
         } catch (e) {
             return;
+        }
+    };
+
+export const navigateToProcess = (uuid: string) =>
+    async (dispatch: Dispatch<any>, getState: () => RootState, services: ServiceRepository) => {
+        try {
+            await services.containerRequestService.get(uuid);
+            dispatch<any>(navigateTo(uuid));
+        } catch {
+            dispatch(snackbarActions.OPEN_SNACKBAR({ message: 'This process does not exists!', hideDuration: 2000, kind: SnackbarKind.ERROR }));
         }
     };
 
@@ -62,7 +74,7 @@ export const deleteCollectionTag = (key: string) =>
                 delete item.properties[key];
                 const updatedCollection = await services.collectionService.update(uuid, item);
                 dispatch(resourcesActions.SET_RESOURCES([updatedCollection]));
-                dispatch(snackbarActions.OPEN_SNACKBAR({ message: "Tag has been successfully deleted.", hideDuration: 2000 }));
+                dispatch(snackbarActions.OPEN_SNACKBAR({ message: "Tag has been successfully deleted.", hideDuration: 2000, kind: SnackbarKind.SUCCESS }));
                 return updatedCollection;
             }
             return;

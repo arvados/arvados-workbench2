@@ -17,7 +17,7 @@ import { initAuth } from "~/store/auth/auth-action";
 import { createServices } from "~/services/services";
 import { MuiThemeProvider } from '@material-ui/core/styles';
 import { CustomTheme } from '~/common/custom-theme';
-import {fetchConfig, fetchFirstLoginTemplate} from '~/common/config';
+import { fetchConfig, fetchFirstLoginTemplate } from '~/common/config';
 import { addMenuActionSet, ContextMenuKind } from '~/views-components/context-menu/context-menu';
 import { rootProjectActionSet } from "~/views-components/context-menu/action-sets/root-project-action-set";
 import { projectActionSet } from "~/views-components/context-menu/action-sets/project-action-set";
@@ -57,6 +57,10 @@ import { userActionSet } from '~/views-components/context-menu/action-sets/user-
 import { computeNodeActionSet } from '~/views-components/context-menu/action-sets/compute-node-action-set';
 import { apiClientAuthorizationActionSet } from '~/views-components/context-menu/action-sets/api-client-authorization-action-set';
 import { FirstLoginDialog } from "~/views-components/first-login-dialog/first-login-dialog";
+import { groupActionSet } from '~/views-components/context-menu/action-sets/group-action-set';
+import { groupMemberActionSet } from '~/views-components/context-menu/action-sets/group-member-action-set';
+import { linkActionSet } from '~/views-components/context-menu/action-sets/link-action-set';
+import { loadFileViewersConfig } from '~/store/file-viewers/file-viewers-actions';
 
 console.log(`Starting arvados [${getBuildInfo()}]`);
 
@@ -78,8 +82,11 @@ addMenuActionSet(ContextMenuKind.SSH_KEY, sshKeyActionSet);
 addMenuActionSet(ContextMenuKind.VIRTUAL_MACHINE, virtualMachineActionSet);
 addMenuActionSet(ContextMenuKind.KEEP_SERVICE, keepServiceActionSet);
 addMenuActionSet(ContextMenuKind.USER, userActionSet);
+addMenuActionSet(ContextMenuKind.LINK, linkActionSet);
 addMenuActionSet(ContextMenuKind.NODE, computeNodeActionSet);
 addMenuActionSet(ContextMenuKind.API_CLIENT_AUTHORIZATION, apiClientAuthorizationActionSet);
+addMenuActionSet(ContextMenuKind.GROUPS, groupActionSet);
+addMenuActionSet(ContextMenuKind.GROUP_MEMBER, groupMemberActionSet);
 
 fetchConfig()
     .then(fetchFirstLoginTemplate)
@@ -98,18 +105,16 @@ fetchConfig()
         const store = configureStore(history, services);
 
         store.subscribe(initListener(history, store, services, config));
-        store.dispatch(initAuth());
+        store.dispatch(initAuth(config));
         store.dispatch(setBuildInfo());
         store.dispatch(setCurrentTokenDialogApiHost(apiHost));
         store.dispatch(setUuidPrefix(config.uuidPrefix));
         store.dispatch(loadVocabulary);
+        store.dispatch(loadFileViewersConfig);
 
-        // TODO: change to proper property
         const userFirstLogin = true;
-
-        const TokenComponent = (props: any) => <ApiToken authService={services.authService} {...props} />;
-        const MainPanelComponent = (props: any) =>
-            userFirstLogin ? <FirstLoginDialog customHTML={firstLoginTemplate} /> : <MainPanel {...props} />;
+        const TokenComponent = (props: any) => <ApiToken authService={services.authService} config={config} {...props} />;
+        const MainPanelComponent = (props: any) => userFirstLogin ? <FirstLoginDialog  /> : <MainPanel {...props} />;
 
         const App = () =>
             <MuiThemeProvider theme={CustomTheme}>

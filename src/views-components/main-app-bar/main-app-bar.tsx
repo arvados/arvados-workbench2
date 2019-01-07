@@ -11,8 +11,9 @@ import { SearchBar } from "~/views-components/search-bar/search-bar";
 import { Routes } from '~/routes/routes';
 import { NotificationsMenu } from "~/views-components/main-app-bar/notifications-menu";
 import { AccountMenu } from "~/views-components/main-app-bar/account-menu";
-import { HelpMenu } from './help-menu';
+import { HelpMenu } from '~/views-components/main-app-bar/help-menu';
 import { ReactNode } from "react";
+import { AdminMenu } from "~/views-components/main-app-bar/admin-menu";
 
 type CssRules = 'toolbar' | 'link';
 
@@ -40,7 +41,7 @@ export const MainAppBar = withStyles(styles)(
             <Toolbar className={props.classes.toolbar}>
                 <Grid container justify="space-between">
                     <Grid container item xs={3} direction="column" justify="center">
-                        <Typography variant="title" color="inherit" noWrap>
+                        <Typography variant='h6' color="inherit" noWrap>
                             <Link to={Routes.ROOT} className={props.classes.link}>
                                 arvados workbench
                             </Link>
@@ -65,6 +66,7 @@ export const MainAppBar = withStyles(styles)(
                             ? <>
                                 <NotificationsMenu />
                                 <AccountMenu />
+                                {props.user.isAdmin && <AdminMenu />}
                                 <HelpMenu />
                             </>
                             : <HelpMenu />}
