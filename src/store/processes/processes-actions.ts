@@ -18,6 +18,8 @@ import { RUN_PROCESS_BASIC_FORM, RunProcessBasicFormData } from "~/views/run-pro
 import { RunProcessAdvancedFormData, RUN_PROCESS_ADVANCED_FORM } from "~/views/run-process-panel/run-process-advanced-form";
 import { MOUNT_PATH_CWL_WORKFLOW, MOUNT_PATH_CWL_INPUT } from '~/models/process';
 import { getWorkflow, getWorkflowInputs } from "~/models/workflow";
+import { FilterBuilder } from "~/services/api/filter-builder";
+import { ContainerRequestResource } from '~/models/container-request';
 
 export const loadProcess = (containerRequestUuid: string) =>
     async (dispatch: Dispatch, getState: () => RootState, services: ServiceRepository): Promise<Process> => {
@@ -33,6 +35,33 @@ export const loadProcess = (containerRequestUuid: string) =>
             return { containerRequest, container };
         }
         return { containerRequest };
+    };
+
+export const loadSubprocesses = (containerUuid: string) =>
+    async (dispatch: Dispatch, getState: () => RootState, services: ServiceRepository) => {
+        const containerRequests = await dispatch<any>(loadContainerRequests(
+            new FilterBuilder().addEqual('requesting_container_uuid', containerUuid).getFilters()
+        )) as ContainerRequestResource[];
+
+        const containerUuids: string[] = containerRequests.reduce((uuids, { containerUuid }) =>
+            containerUuid
+                ? [...uuids, containerUuid]
+                : uuids, []);
+
+        if (containerUuids.length > 0) {
+            await dispatch<any>(loadContainers(
+                new FilterBuilder().addIn('uuid', containerUuids).getFilters()
+            ));
+        }
+    };
+
+const MAX_AMOUNT_OF_SUBPROCESSES = 10000;
+
+export const loadContainerRequests = (filters: string) =>
+    async (dispatch: Dispatch, getState: () => RootState, services: ServiceRepository) => {
+        const { items } = await services.containerRequestService.list({ filters, limit: MAX_AMOUNT_OF_SUBPROCESSES });
+        dispatch<any>(updateResources(items));
+        return items;
     };
 
 export const loadContainers = (filters: string) =>

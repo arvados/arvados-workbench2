@@ -19,7 +19,7 @@ const mapStateToProps = (state: RootState, { disabled }: FileUploaderProps): Pic
     files: state.fileUploader,
 });
 
-const mapDispatchToProps = (dispatch: Dispatch, { onDrop }: FileUploaderProps): Pick<FileUploadProps, 'onDrop'> => ({
+const mapDispatchToProps = (dispatch: Dispatch, { onDrop }: FileUploaderProps): Pick<FileUploadProps, 'onDrop' | 'onDelete'> => ({
     onDrop: files => {
         const state = dispatch<any>(getFileUploaderState());
         if (files.length > 0 && state.length === 0) {
@@ -30,6 +30,7 @@ const mapDispatchToProps = (dispatch: Dispatch, { onDrop }: FileUploaderProps): 
             onDrop(files);
         }
     },
+    onDelete: file => dispatch(fileUploaderActions.DELETE_UPLOAD_FILE(file)),
 });
 
 export const FileUploader = connect(mapStateToProps, mapDispatchToProps)(FileUpload);

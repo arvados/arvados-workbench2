@@ -9,17 +9,18 @@ import {
     StyleRulesCallback,
     Table, TableBody, TableCell, TableHead, TableRow,
     Typography,
-    WithStyles
+    WithStyles,
+    IconButton
 } from '@material-ui/core';
 import { withStyles } from '@material-ui/core';
 import Dropzone from 'react-dropzone';
-import { CloudUploadIcon } from "../icon/icon";
+import { CloudUploadIcon, RemoveIcon } from "../icon/icon";
 import { formatFileSize, formatProgress, formatUploadSpeed } from "~/common/formatters";
 import { UploadFile } from '~/store/file-uploader/file-uploader-actions';
 
 type CssRules = "root" | "dropzone" | "dropzoneWrapper" | "container" | "uploadIcon"
     | "dropzoneBorder" | "dropzoneBorderLeft" | "dropzoneBorderRight" | "dropzoneBorderTop" | "dropzoneBorderBottom"
-    | "dropzoneBorderHorzActive" | "dropzoneBorderVertActive";
+    | "dropzoneBorderHorzActive" | "dropzoneBorderVertActive" | "deleteButton" | "deleteButtonDisabled" | "deleteIcon";
 
 const styles: StyleRulesCallback<CssRules> = theme => ({
     root: {
@@ -81,6 +82,15 @@ const styles: StyleRulesCallback<CssRules> = theme => ({
     },
     uploadIcon: {
         verticalAlign: "middle"
+    },
+    deleteButton: {
+        cursor: "pointer"
+    },
+    deleteButtonDisabled: {
+        cursor: "not-allowed"
+    },
+    deleteIcon: {
+        marginLeft: "-6px"
     }
 });
 
@@ -88,6 +98,7 @@ interface FileUploadPropsData {
     files: UploadFile[];
     disabled: boolean;
     onDrop: (files: File[]) => void;
+    onDelete: (file: UploadFile) => void;
 }
 
 interface FileUploadState {
@@ -104,13 +115,22 @@ export const FileUpload = withStyles(styles)(
                 focused: false
             };
         }
+        onDelete = (event: React.MouseEvent<HTMLTableCellElement>, file: UploadFile): void => {
+            const { onDelete, disabled } = this.props;
+
+            event.stopPropagation();
+
+            if (!disabled) {
+                onDelete(file);
+            }
+        }
         render() {
             const { classes, onDrop, disabled, files } = this.props;
             return <div className={"file-upload-dropzone " + classes.dropzoneWrapper}>
-                <div className={classnames(classes.dropzoneBorder, classes.dropzoneBorderLeft, { [classes.dropzoneBorderHorzActive]: this.state.focused })}/>
-                <div className={classnames(classes.dropzoneBorder, classes.dropzoneBorderRight, { [classes.dropzoneBorderHorzActive]: this.state.focused })}/>
-                <div className={classnames(classes.dropzoneBorder, classes.dropzoneBorderTop, { [classes.dropzoneBorderVertActive]: this.state.focused })}/>
-                <div className={classnames(classes.dropzoneBorder, classes.dropzoneBorderBottom, { [classes.dropzoneBorderVertActive]: this.state.focused })}/>
+                <div className={classnames(classes.dropzoneBorder, classes.dropzoneBorderLeft, { [classes.dropzoneBorderHorzActive]: this.state.focused })} />
+                <div className={classnames(classes.dropzoneBorder, classes.dropzoneBorderRight, { [classes.dropzoneBorderHorzActive]: this.state.focused })} />
+                <div className={classnames(classes.dropzoneBorder, classes.dropzoneBorderTop, { [classes.dropzoneBorderVertActive]: this.state.focused })} />
+                <div className={classnames(classes.dropzoneBorder, classes.dropzoneBorderBottom, { [classes.dropzoneBorderVertActive]: this.state.focused })} />
                 <Dropzone className={classes.dropzone}
                     onDrop={files => onDrop(files)}
                     onClick={() => {
@@ -132,7 +152,7 @@ export const FileUpload = withStyles(styles)(
                                 focused: false
                             });
                         }
-                }}>
+                    }}>
                     {files.length === 0 &&
                         <Grid container justify="center" alignItems="center" className={classes.container}>
                             <Grid item component={"span"}>
@@ -149,6 +169,7 @@ export const FileUpload = withStyles(styles)(
                                     <TableCell>File size</TableCell>
                                     <TableCell>Upload speed</TableCell>
                                     <TableCell>Upload progress</TableCell>
+                                    <TableCell>Delete</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -158,6 +179,15 @@ export const FileUpload = withStyles(styles)(
                                         <TableCell>{formatFileSize(f.file.size)}</TableCell>
                                         <TableCell>{formatUploadSpeed(f.prevLoaded, f.loaded, f.prevTime, f.currentTime)}</TableCell>
                                         <TableCell>{formatProgress(f.loaded, f.total)}</TableCell>
+                                        <TableCell>
+                                            <IconButton
+                                                aria-label="Remove"
+                                                onClick={(event: React.MouseEvent<HTMLTableCellElement>) => this.onDelete(event, f)}
+                                                className={disabled ? classnames(classes.deleteButtonDisabled, classes.deleteIcon) : classnames(classes.deleteButton, classes.deleteIcon)}
+                                            >
+                                                <RemoveIcon />
+                                            </IconButton>
+                                        </TableCell>
                                     </TableRow>
                                 )}
                             </TableBody>
