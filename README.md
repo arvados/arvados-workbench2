@@ -26,6 +26,12 @@ yarn install
 yarn build
 </pre>
 
+### Package build
+<pre>
+docker build -t arvados/fpm .
+docker run -v$PWD:$PWD -w $PWD arvados/fpm make packages
+</pre>
+
 ### Build time configuration
 You can customize project global variables using env variables. Default values are placed in the `.env` file.
 
@@ -46,8 +52,14 @@ Currently this configuration schema is supported:
 }
 ```
 
+#### API_HOST
+
+The Arvados base URL.
+
+The `REACT_APP_ARVADOS_API_HOST` environment variable can be used to set the default URL if the run time configuration is unreachable.
+
 #### VOCABULARY_URL
-Local path, or any URL that allows cross-origin requests. See 
+Local path, or any URL that allows cross-origin requests. See
 [Vocabulary JSON file example](public/vocabulary-example.json).
 
 ### FILE_VIEWERS_CONFIG_URL
