@@ -60,7 +60,7 @@
     "tslint-etc": "1.6.0",
     "unionize": "2.1.2",
     "uuid": "3.3.2",
-    "webpack-dev-server": "3.1.1"
+    "webpack-dev-server": "3.1.11"
   },
   "scripts": {
     "start": "react-scripts-ts start",
