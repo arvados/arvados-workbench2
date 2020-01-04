@@ -108,7 +108,7 @@ $(RPM_FILE): build
 	 $(WORKSPACE)/build/=$(DEST_DIR)
 
 copy: $(DEB_FILE) $(RPM_FILE)
-	for target in $TARGETS ; do \
+	for target in $(TARGETS) ; do \
 	        mkdir -p packages/$$target
 		if [[ $$target =~ ^centos ]]; then
 			cp -p $(RPM_FILE) packages/$$target ; \
