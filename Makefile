@@ -106,12 +106,12 @@ $(RPM_FILE): build
 	 $(WORKSPACE)/build/=$(DEST_DIR)
 
 copy: $(DEB_FILE) $(RPM_FILE)
-	mkdir packages
-	for target in $^ ; do \
+	for target in $^ ; do
+	        mkdir -p packages/$$target
 		if [[ $$target =~ ^centos ]]; then
-			cp -p $(RPM_FILE) packages/$$target ; \
+			cp -p $(RPM_FILE) packages/$$target
 		else
-			cp -p $(DEB_FILE) packages/$$target ; \
+			cp -p $(DEB_FILE) packages/$$target
 		fi
 	done
 	rm -f $(RPM_FILE)
