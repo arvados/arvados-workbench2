@@ -28,6 +28,8 @@ VERSION?=$(GIT_TAG).$(DATE_FROM_TS_GIT)
 # changes in the package. (i.e. example config files externally added
 ITERATION?=1
 
+TARGETS?="centos7 debian8 debian9 debian10 ubuntu1404 ubuntu1604 ubuntu1804"
+
 DESCRIPTION=Arvados Workbench2 - Arvados is a free and open source platform for big data science.
 MAINTAINER=Ward Vandewege <wvandewege@veritasgenetics.com>
 
@@ -106,12 +108,12 @@ $(RPM_FILE): build
 	 $(WORKSPACE)/build/=$(DEST_DIR)
 
 copy: $(DEB_FILE) $(RPM_FILE)
-	for target in $^ ; do
+	for target in $TARGETS ; do \
 	        mkdir -p packages/$$target
 		if [[ $$target =~ ^centos ]]; then
-			cp -p $(RPM_FILE) packages/$$target
+			cp -p $(RPM_FILE) packages/$$target ; \
 		else
-			cp -p $(DEB_FILE) packages/$$target
+			cp -p $(DEB_FILE) packages/$$target ; \
 		fi
 	done
 	rm -f $(RPM_FILE)
