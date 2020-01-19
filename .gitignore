@@ -30,3 +30,7 @@ yarn-error.log*
 
 .idea
 .vscode
+
+/public/config.json
+/cypress/integration/examples
+/cypress/fixtures/example.json
