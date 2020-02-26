@@ -155,7 +155,7 @@ export const CollectionPanel = withStyles(styles)(
 
             handleContextMenu = (event: React.MouseEvent<any>) => {
                 const { userUuid } = this.props;
-                const { uuid, ownerUuid, name, description, kind, isTrashed, writableBy = [] } = this.props.item;
+                const { uuid, ownerUuid, name, description, kind, isTrashed, writableBy } = this.props.item;
                 const writable = writableBy.indexOf(userUuid) >= 0;
                 const menuKind = writable ? isTrashed
                     ? ContextMenuKind.TRASHED_COLLECTION
