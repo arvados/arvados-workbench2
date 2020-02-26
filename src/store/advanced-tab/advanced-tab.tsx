@@ -435,7 +435,7 @@ const containerRequestApiResponse = (apiResponse: ContainerRequestResource) => {
 const collectionApiResponse = (apiResponse: CollectionResource) => {
     const { uuid, ownerUuid, createdAt, modifiedAt, modifiedByClientUuid, modifiedByUserUuid, name, description, properties, portableDataHash, replicationDesired,
         replicationConfirmedAt, replicationConfirmed, manifestText, deleteAt, trashAt, isTrashed, storageClassesDesired,
-        storageClassesConfirmed, storageClassesConfirmedAt, currentVersionUuid, version, preserveVersion, fileCount, fileSizeTotal } = apiResponse;
+        storageClassesConfirmed, storageClassesConfirmedAt, currentVersionUuid, version, preserveVersion, fileCount, fileSizeTotal, writableBy } = apiResponse;
     const response = `
 "uuid": "${uuid}",
 "owner_uuid": "${ownerUuid}",
@@ -461,7 +461,8 @@ const collectionApiResponse = (apiResponse: CollectionResource) => {
 "version": ${version},
 "preserve_version": ${preserveVersion},
 "file_count": ${fileCount},
-"file_size_total": ${fileSizeTotal}`;
+"file_size_total": ${fileSizeTotal},
+"writable_by": ${writableBy}`;
 
     return <span style={{ marginLeft: '-15px' }}>{'{'} {response} {'\n'} <span style={{ marginLeft: '-15px' }}>{'}'}</span></span>;
 };

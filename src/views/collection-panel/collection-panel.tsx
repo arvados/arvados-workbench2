@@ -25,6 +25,7 @@ import { openDetailsPanel } from '~/store/details-panel/details-panel-action';
 import { snackbarActions, SnackbarKind } from '~/store/snackbar/snackbar-actions';
 import { getPropertyChip } from '~/views-components/resource-properties-form/property-chip';
 import { IllegalNamingWarning } from '~/components/warning/warning';
+import { getUserUuid } from '~/common/getuser';
 
 type CssRules = 'card' | 'iconHeader' | 'tag' | 'label' | 'value' | 'link';
 
@@ -58,6 +59,7 @@ const styles: StyleRulesCallback<CssRules> = (theme: ArvadosTheme) => ({
 
 interface CollectionPanelDataProps {
     item: CollectionResource;
+    userUuid: string;
 }
 
 type CollectionPanelProps = CollectionPanelDataProps & DispatchProp
@@ -66,7 +68,8 @@ type CollectionPanelProps = CollectionPanelDataProps & DispatchProp
 export const CollectionPanel = withStyles(styles)(
     connect((state: RootState, props: RouteComponentProps<{ id: string }>) => {
         const item = getResource(props.match.params.id)(state.resources);
-        return { item };
+        const userUuid = getUserUuid(state);
+        return { item, userUuid };
     })(
         class extends React.Component<CollectionPanelProps> {
 
@@ -90,7 +93,7 @@ export const CollectionPanel = withStyles(styles)(
                                         </IconButton>
                                     </Tooltip>
                                 }
-                                title={item && <span><IllegalNamingWarning name={item.name}/>{item.name}</span>}
+                                title={item && <span><IllegalNamingWarning name={item.name} />{item.name}</span>}
                                 titleTypographyProps={this.titleProps}
                                 subheader={item && item.description}
                                 subheaderTypographyProps={this.titleProps} />
@@ -129,15 +132,15 @@ export const CollectionPanel = withStyles(styles)(
                                     <Grid item xs={12}>
                                         {Object.keys(item.properties).map(k =>
                                             Array.isArray(item.properties[k])
-                                            ? item.properties[k].map((v: string) =>
-                                                getPropertyChip(
-                                                    k, v,
-                                                    this.handleDelete(k, v),
-                                                    classes.tag))
-                                            : getPropertyChip(
-                                                k, item.properties[k],
-                                                this.handleDelete(k, item.properties[k]),
-                                                classes.tag)
+                                                ? item.properties[k].map((v: string) =>
+                                                    getPropertyChip(
+                                                        k, v,
+                                                        this.handleDelete(k, v),
+                                                        classes.tag))
+                                                : getPropertyChip(
+                                                    k, item.properties[k],
+                                                    this.handleDelete(k, item.properties[k]),
+                                                    classes.tag)
                                         )}
                                     </Grid>
                                 </Grid>
@@ -151,16 +154,20 @@ export const CollectionPanel = withStyles(styles)(
             }
 
             handleContextMenu = (event: React.MouseEvent<any>) => {
-                const { uuid, ownerUuid, name, description, kind, isTrashed } = this.props.item;
+                const { userUuid } = this.props;
+                const { uuid, ownerUuid, name, description, kind, isTrashed, writableBy = [] } = this.props.item;
+                const writable = writableBy.indexOf(userUuid) >= 0;
+                const menuKind = writable ? isTrashed
+                    ? ContextMenuKind.TRASHED_COLLECTION
+                    : ContextMenuKind.COLLECTION : ContextMenuKind.NON_WRITABLE_COLLECTION;
+
                 const resource = {
                     uuid,
                     ownerUuid,
                     name,
                     description,
                     kind,
-                    menuKind: isTrashed
-                        ? ContextMenuKind.TRASHED_COLLECTION
-                        : ContextMenuKind.COLLECTION
+                    menuKind
                 };
                 this.props.dispatch<any>(openContextMenu(event, resource));
             }

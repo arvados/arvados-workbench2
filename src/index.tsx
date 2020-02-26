@@ -28,6 +28,7 @@ import { collectionFilesActionSet } from '~/views-components/context-menu/action
 import { collectionFilesItemActionSet } from '~/views-components/context-menu/action-sets/collection-files-item-action-set';
 import { collectionFilesNotSelectedActionSet } from '~/views-components/context-menu/action-sets/collection-files-not-selected-action-set';
 import { collectionActionSet } from '~/views-components/context-menu/action-sets/collection-action-set';
+import { nonWritableCollectionActionSet } from '~/views-components/context-menu/action-sets/non-writable-collection-action-set';
 import { collectionResourceActionSet } from '~/views-components/context-menu/action-sets/collection-resource-action-set';
 import { processActionSet } from '~/views-components/context-menu/action-sets/process-action-set';
 import { loadWorkbench } from '~/store/workbench/workbench-actions';
@@ -73,6 +74,7 @@ addMenuActionSet(ContextMenuKind.COLLECTION_FILES, collectionFilesActionSet);
 addMenuActionSet(ContextMenuKind.COLLECTION_FILES_NOT_SELECTED, collectionFilesNotSelectedActionSet);
 addMenuActionSet(ContextMenuKind.COLLECTION_FILES_ITEM, collectionFilesItemActionSet);
 addMenuActionSet(ContextMenuKind.COLLECTION, collectionActionSet);
+addMenuActionSet(ContextMenuKind.NON_WRITABLE_COLLECTION, nonWritableCollectionActionSet);
 addMenuActionSet(ContextMenuKind.COLLECTION_RESOURCE, collectionResourceActionSet);
 addMenuActionSet(ContextMenuKind.TRASHED_COLLECTION, trashedCollectionActionSet);
 addMenuActionSet(ContextMenuKind.PROCESS, processActionSet);

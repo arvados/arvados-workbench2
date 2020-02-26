@@ -23,6 +23,7 @@ export interface CollectionResource extends TrashableResource {
     unsignedManifestText?: string;
     fileCount: number;
     fileSizeTotal: number;
+    writableBy: string[];
 }
 
 export const getCollectionUrl = (uuid: string) => {
