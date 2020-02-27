@@ -53,6 +53,7 @@ export interface ClusterConfigJSON {
         WelcomePageHTML: string;
         InactivePageHTML: string;
         SSHHelpPageHTML: string;
+        SSHHelpHostSuffix: string;
         SiteName: string;
     };
     Login: {
@@ -168,6 +169,7 @@ export const mockClusterConfigJSON = (config: Partial<ClusterConfigJSON>): Clust
         WelcomePageHTML: "",
         InactivePageHTML: "",
         SSHHelpPageHTML: "",
+        SSHHelpHostSuffix: "",
         SiteName: "",
     },
     Login: {
