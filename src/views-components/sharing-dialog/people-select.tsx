@@ -120,11 +120,11 @@ export const PeopleSelect = connect()(
                 .addNotIn('group_class', [GroupClass.PROJECT])
                 .addILike('name', value)
                 .getFilters();
-            const groupItems = await groupsService.list({ filters: filterGroups, limit: 5 });
+            const groupItems = await groupsService.list({ filters: filterGroups, limit: 5, count: "none" });
             const filterUsers = new FilterBuilder()
                 .addILike('email', value)
                 .getFilters();
-            const userItems: any = await userService.list({ filters: filterUsers, limit: 5 });
+            const userItems: any = await userService.list({ filters: filterUsers, limit: 5, count: "none" });
             const items = groupItems.items.concat(userItems.items);
             this.setState({ suggestions: this.props.onlyPeople ? userItems.items : items });
         }
