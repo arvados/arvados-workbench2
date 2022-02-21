@@ -216,7 +216,7 @@ describe('Project tests', function() {
         });
     });
 
-    it('opens advanced popup for project with username', () => {
+    it.skip('opens advanced popup for project with username', () => {
         const projectName = `Test project ${Math.floor(Math.random() * 999999)}`;
 
         cy.createGroup(adminUser.token, {
@@ -227,7 +227,7 @@ describe('Project tests', function() {
         cy.getAll('@mainProject')
             .then(function ([mainProject]) {
                 cy.loginAs(adminUser);
-                
+
                 cy.get('[data-cy=side-panel-tree]').contains('Groups').click();
 
                 cy.get('[data-cy=uuid]').eq(0).invoke('text').then(uuid => {
