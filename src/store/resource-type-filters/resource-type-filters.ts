@@ -27,6 +27,7 @@ export enum ObjectTypeFilter {
     PROJECT = 'Project',
     PROCESS = 'Process',
     COLLECTION = 'Data collection',
+    WORKFLOW = 'Workflow',
 }
 
 export enum GroupTypeFilter {
@@ -38,6 +39,7 @@ export enum CollectionTypeFilter {
     GENERAL_COLLECTION = 'General',
     OUTPUT_COLLECTION = 'Output',
     LOG_COLLECTION = 'Log',
+    INTERMEDIATE_COLLECTION = 'Intermediate',
 }
 
 export enum ProcessTypeFilter {
@@ -62,6 +64,7 @@ export const getSimpleObjectTypeFilters = pipe(
     initFilter(ObjectTypeFilter.PROJECT),
     initFilter(ObjectTypeFilter.PROCESS),
     initFilter(ObjectTypeFilter.COLLECTION),
+    initFilter(ObjectTypeFilter.WORKFLOW),
 );
 
 // Using pipe() with more than 7 arguments makes the return type be 'any',
@@ -82,8 +85,11 @@ export const getInitialResourceTypeFilters = pipe(
         initFilter(ObjectTypeFilter.COLLECTION),
         initFilter(CollectionTypeFilter.GENERAL_COLLECTION, ObjectTypeFilter.COLLECTION),
         initFilter(CollectionTypeFilter.OUTPUT_COLLECTION, ObjectTypeFilter.COLLECTION),
+        initFilter(CollectionTypeFilter.INTERMEDIATE_COLLECTION, ObjectTypeFilter.COLLECTION),
         initFilter(CollectionTypeFilter.LOG_COLLECTION, ObjectTypeFilter.COLLECTION),
     ),
+    initFilter(ObjectTypeFilter.WORKFLOW)
+
 );
 
 export const getInitialProcessTypeFilters = pipe(
@@ -111,6 +117,7 @@ export const getTrashPanelTypeFilters = pipe(
     initFilter(ObjectTypeFilter.COLLECTION),
     initFilter(CollectionTypeFilter.GENERAL_COLLECTION, ObjectTypeFilter.COLLECTION),
     initFilter(CollectionTypeFilter.OUTPUT_COLLECTION, ObjectTypeFilter.COLLECTION),
+    initFilter(CollectionTypeFilter.INTERMEDIATE_COLLECTION, ObjectTypeFilter.COLLECTION),
     initFilter(CollectionTypeFilter.LOG_COLLECTION, ObjectTypeFilter.COLLECTION),
 );
 
@@ -130,6 +137,8 @@ const objectTypeToResourceKind = (type: ObjectTypeFilter) => {
             return ResourceKind.PROCESS;
         case ObjectTypeFilter.COLLECTION:
             return ResourceKind.COLLECTION;
+        case ObjectTypeFilter.WORKFLOW:
+            return ResourceKind.WORKFLOW;
     }
 };
 
@@ -167,6 +176,10 @@ const collectionTypeToPropertyValue = (type: CollectionTypeFilter) => {
             return CollectionType.OUTPUT;
         case CollectionTypeFilter.LOG_COLLECTION:
             return CollectionType.LOG;
+        case CollectionTypeFilter.INTERMEDIATE_COLLECTION:
+            return CollectionType.INTERMEDIATE;
+        default:
+            return CollectionType.GENERAL;
     }
 };
 
@@ -273,7 +286,7 @@ export const serializeSimpleObjectTypeFilters = (filters: Tree<DataTableFilterIt
         .map(objectTypeToResourceKind);
 };
 
-export const buildProcessStatusFilters = ( fb: FilterBuilder, activeStatusFilter: string, resourcePrefix?: string ): FilterBuilder => {
+export const buildProcessStatusFilters = (fb: FilterBuilder, activeStatusFilter: string, resourcePrefix?: string): FilterBuilder => {
     switch (activeStatusFilter) {
         case ProcessStatusFilter.ONHOLD: {
             fb.addDistinct('state', ContainerRequestState.FINAL, resourcePrefix);

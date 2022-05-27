@@ -31,22 +31,24 @@ describe("serializeResourceTypeFilters", () => {
         const filters = getInitialResourceTypeFilters();
         const serializedFilters = serializeResourceTypeFilters(filters);
         expect(serializedFilters)
-            .toEqual(`["uuid","is_a",["${ResourceKind.PROJECT}","${ResourceKind.PROCESS}","${ResourceKind.COLLECTION}"]]`);
+            .toEqual(`["uuid","is_a",["${ResourceKind.PROJECT}","${ResourceKind.PROCESS}","${ResourceKind.COLLECTION}","${ResourceKind.WORKFLOW}"]]`);
     });
 
     it("should serialize all but collection filters", () => {
         const filters = deselectNode(ObjectTypeFilter.COLLECTION)(getInitialResourceTypeFilters());
         const serializedFilters = serializeResourceTypeFilters(filters);
         expect(serializedFilters)
-            .toEqual(`["uuid","is_a",["${ResourceKind.PROJECT}","${ResourceKind.PROCESS}"]]`);
+            .toEqual(`["uuid","is_a",["${ResourceKind.PROJECT}","${ResourceKind.PROCESS}","${ResourceKind.WORKFLOW}"]]`);
     });
 
     it("should serialize output collections and projects", () => {
         const filters = pipe(
             () => getInitialResourceTypeFilters(),
             deselectNode(ObjectTypeFilter.PROCESS),
+            deselectNode(ObjectTypeFilter.WORKFLOW),
             deselectNode(CollectionTypeFilter.GENERAL_COLLECTION),
             deselectNode(CollectionTypeFilter.LOG_COLLECTION),
+            deselectNode(CollectionTypeFilter.INTERMEDIATE_COLLECTION),
         )();
 
         const serializedFilters = serializeResourceTypeFilters(filters);
@@ -54,11 +56,27 @@ describe("serializeResourceTypeFilters", () => {
             .toEqual(`["uuid","is_a",["${ResourceKind.PROJECT}","${ResourceKind.COLLECTION}"]],["collections.properties.type","in",["output"]]`);
     });
 
+    it("should serialize intermediate collections and projects", () => {
+        const filters = pipe(
+            () => getInitialResourceTypeFilters(),
+            deselectNode(ObjectTypeFilter.PROCESS),
+            deselectNode(ObjectTypeFilter.WORKFLOW),
+            deselectNode(CollectionTypeFilter.GENERAL_COLLECTION),
+            deselectNode(CollectionTypeFilter.LOG_COLLECTION),
+            deselectNode(CollectionTypeFilter.OUTPUT_COLLECTION),
+        )();
+
+        const serializedFilters = serializeResourceTypeFilters(filters);
+        expect(serializedFilters)
+            .toEqual(`["uuid","is_a",["${ResourceKind.PROJECT}","${ResourceKind.COLLECTION}"]],["collections.properties.type","in",["intermediate"]]`);
+    });
+
     it("should serialize general and log collections", () => {
         const filters = pipe(
             () => getInitialResourceTypeFilters(),
             deselectNode(ObjectTypeFilter.PROJECT),
             deselectNode(ObjectTypeFilter.PROCESS),
+            deselectNode(ObjectTypeFilter.WORKFLOW),
             deselectNode(CollectionTypeFilter.OUTPUT_COLLECTION)
         )();
 
@@ -72,7 +90,8 @@ describe("serializeResourceTypeFilters", () => {
             () => getInitialResourceTypeFilters(),
             deselectNode(ObjectTypeFilter.PROJECT),
             deselectNode(ProcessTypeFilter.CHILD_PROCESS),
-            deselectNode(ObjectTypeFilter.COLLECTION)
+            deselectNode(ObjectTypeFilter.COLLECTION),
+            deselectNode(ObjectTypeFilter.WORKFLOW),
         )();
 
         const serializedFilters = serializeResourceTypeFilters(filters);
@@ -85,7 +104,8 @@ describe("serializeResourceTypeFilters", () => {
             () => getInitialResourceTypeFilters(),
             deselectNode(ObjectTypeFilter.PROJECT),
             deselectNode(ProcessTypeFilter.MAIN_PROCESS),
-            deselectNode(ObjectTypeFilter.COLLECTION)
+            deselectNode(ObjectTypeFilter.COLLECTION),
+            deselectNode(ObjectTypeFilter.WORKFLOW),
         )();
 
         const serializedFilters = serializeResourceTypeFilters(filters);
@@ -98,6 +118,7 @@ describe("serializeResourceTypeFilters", () => {
             () => getInitialResourceTypeFilters(),
             deselectNode(ObjectTypeFilter.PROCESS),
             deselectNode(ObjectTypeFilter.COLLECTION),
+            deselectNode(ObjectTypeFilter.WORKFLOW),
         )();
 
         const serializedFilters = serializeResourceTypeFilters(filters);
@@ -111,6 +132,7 @@ describe("serializeResourceTypeFilters", () => {
             deselectNode(GroupTypeFilter.PROJECT),
             deselectNode(ObjectTypeFilter.PROCESS),
             deselectNode(ObjectTypeFilter.COLLECTION),
+            deselectNode(ObjectTypeFilter.WORKFLOW),
         )();
 
         const serializedFilters = serializeResourceTypeFilters(filters);
@@ -124,6 +146,7 @@ describe("serializeResourceTypeFilters", () => {
             deselectNode(GroupTypeFilter.FILTER_GROUP),
             deselectNode(ObjectTypeFilter.PROCESS),
             deselectNode(ObjectTypeFilter.COLLECTION),
+            deselectNode(ObjectTypeFilter.WORKFLOW),
         )();
 
         const serializedFilters = serializeResourceTypeFilters(filters);
