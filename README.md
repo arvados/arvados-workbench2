@@ -2,6 +2,11 @@
 [comment]: # ()
 [comment]: # (SPDX-License-Identifier: CC-BY-SA-3.0)
 
+**Note** The contents of this repository have been merged into the [main Arvados repository at arvados/service/workbench2](https://github.com/arvados/arvados/tree/main/services/workbench2).
+Ongoing development can be found there.
+
+The code archived here contains history up to the 2.7.1 release of Arvados Workbench 2, with one additional merge to HEAD ("21128-toolbar-context-menu").
+
 # Arvados Workbench 2
 
 ## Setup
